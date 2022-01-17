@@ -17,6 +17,11 @@
   },
   "homepage": "https://github.com/veigajoao/crypto_game_boilerplate#readme",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.2"
+    "@openzeppelin/contracts": "^4.4.2",
+    "@truffle/hdwallet-provider": "^2.0.0",
+    "ganache-cli": "^6.12.2",
+    "mocha": "^9.1.4",
+    "solc": "^0.8.11",
+    "web3": "^1.7.0"
   }
 }
