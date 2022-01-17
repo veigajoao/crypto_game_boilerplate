@@ -1,0 +1,22 @@
+{
+  "name": "crypto_game_boilerplate",
+  "version": "0.0.0",
+  "description": "boilerplate for ethereum/bsc cryptogames",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veigajoao/crypto_game_boilerplate.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/veigajoao/crypto_game_boilerplate/issues"
+  },
+  "homepage": "https://github.com/veigajoao/crypto_game_boilerplate#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2"
+  }
+}
