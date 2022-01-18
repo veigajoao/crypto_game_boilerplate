@@ -10,17 +10,37 @@ const nftCreationCompile = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
 const abi = nftCreationCompile.abi;
 const bytecode = nftCreationCompile.bytecode;
 
+const contractPathBanana = path.resolve(__dirname, '../bin/contracts/token_creation', 'BananaCoin.json');
+const bananaCoinCompile = JSON.parse(fs.readFileSync(contractPathBanana, 'utf8'));
+const abiBanana = bananaCoinCompile.abi;
+const bytecodeBanana = bananaCoinCompile.bytecode;
+
 let accounts;
 let nftCreation;
+let bananaCoin;
+
+let mintCost = '100';
+let upgradeCost = '450';
+let baseURI = 'https://gateway.pinata.cloud/ipfs/Qmb86L8mUphwJGzLPwXNTRiK1S4scBdj9cc2Sev3s8uLiB';
 
 beforeEach(async() => {
     // Get a list of all accounts
     accounts = await web3.eth.getAccounts();
+
+    //deploy ERC20 token
+    bananaCoin = await new web3.eth.Contract(abiBanana)
+        .deploy({
+            data: bytecodeBanana,
+        })
+        .send({ from: accounts[0], gas: '1000000' });
+
+    //deploy ERC721 nft
     nftCreation = await new web3.eth.Contract(abi)
         .deploy({
             data: bytecode,
+            arguments: [bananaCoin.options.address, mintCost, upgradeCost, baseURI]
         })
-        .send({ from: accounts[0], gas: '1000000' });
+        .send({ from: accounts[0], gas: '5000000' });
 });
 
 describe('CryptoMonkeyChars contract', () => {
@@ -30,63 +50,99 @@ describe('CryptoMonkeyChars contract', () => {
     });
 
     it('constructor() works correctly', async() => {
-        const managerBalance = await nftCreation.methods.balanceOf(accounts[0]).call();
-        assert.equal(managerBalance, 5.8 * 10**6);
+        const name = await nftCreation.methods.name().call();
+        const symbol = await nftCreation.methods.symbol().call();
+
+        const tokenAddress = await nftCreation.methods.tokenAddress().call();
+        const mintCost = await nftCreation.methods.mintCost().call();
+        const levelUpCost = await nftCreation.methods.levelUpCost().call();
+        const baseUriString = await nftCreation.methods.baseUriString().call();
+
+        assert.equal(name, "CryptoMonkeys");
+        assert.equal(symbol, "CMONKEYS");
+
+        assert.equal(tokenAddress, bananaCoin.options.address);
+        assert.equal(mintCost, mintCost);
+        assert.equal(levelUpCost, upgradeCost);
+        assert.equal(baseUriString, baseURI);
     });
 
-    it('name() is set correctly', async() => {
-        const coinName = await nftCreation.methods.name().call();
-        const coinSymbol = await nftCreation.methods.symbol().call();
-        assert.equal(coinName, "BananaCoin");
-        assert.equal(coinSymbol, "BANCOIN");
+    it('mintNft() works correctly if user pays ERC20 tokens', async() => {
+        
+        //approve spending in ERC20 contract
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost).send({ from: accounts[0], gas: '1000000' });
+
+        const balance0 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance0nft = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
+
+        await nftCreation.methods.mintNft(accounts[0]).send({ from: accounts[0], gas: '1000000' });
+
+        const balance1 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance1nft = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
+
+        assert.equal(balance0, balance1 + parseInt(mintCost));
+        assert.equal(balance0nft, balance1nft - 1);
+        
     });
 
-    it('can transfer funds between accounts', async() => {
+    it('mintNft() doesn`t work if user doesn`t pay ERC20 tokens', async() => {
+        
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost).send({ from: accounts[1], gas: '1000000' });
 
-        const transferAmount = 10000;
+        //should fail because accounts[1] doesn't have any ERC20 tokens
+        const assertionFunc = async() => {
+            await nftCreation.methods.mintNft(accounts[0]).send({ from: accounts[1] })
+        };
 
-        const balance0_0 = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
-        const balance1_0 = parseInt(await nftCreation.methods.balanceOf(accounts[1]).call());
-
-        await nftCreation.methods.transfer(accounts[1], transferAmount).send({
-            from: accounts[0]
-        });
-
-        const balance0_1 = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
-        const balance1_1 = parseInt(await nftCreation.methods.balanceOf(accounts[1]).call());
-
-        assert.equal(balance0_0 - transferAmount, balance0_1);
-        assert.equal(balance1_0 + transferAmount, balance1_1);
-        assert.equal(balance1_0 + balance0_0, balance1_1 + balance0_1);
+        assert.rejects(assertionFunc);
 
     });
 
-    it('can provide allowance to other apps', async() => {
+    it('upgradeNft() works correctly if user pays ERC20 tokens', async() => {
+        
+        //mint nft
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost).send({ from: accounts[0], gas: '1000000' });
+        await nftCreation.methods.mintNft(accounts[0]).send({ from: accounts[0], gas: '1000000' });
 
-        const transferAmount = 10000;
+        //approve spending in ERC20 contract
+        await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[0], gas: '1000000' });
 
-        const balance0_0 = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
-        const balance1_0 = parseInt(await nftCreation.methods.balanceOf(accounts[1]).call());
+        //get id of one of accounts[0]'s nfts
+        const tokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 0).call();
 
-        await nftCreation.methods.approve(accounts[1], transferAmount).send({
-            from: accounts[0]
-        });
+        const nftStruct0 = await nftCreation.methods.tokensAttributes(tokenId).call();
+        const balance0 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
 
-        const allowanceValue = parseInt(await nftCreation.methods.allowance(accounts[0], accounts[1]).call());
+        await nftCreation.methods.upgradeNft(accounts[0], tokenId).send({ from: accounts[0], gas: '1000000' });
 
-        await nftCreation.methods.transferFrom(accounts[0], accounts[1], transferAmount).send({
-            from: accounts[1]
-        });
+        const balance1 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const nftStruct1 = await nftCreation.methods.tokensAttributes(tokenId).call();
 
-        const balance0_1 = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
-        const balance1_1 = parseInt(await nftCreation.methods.balanceOf(accounts[1]).call());
+        assert.equal(balance0, balance1 + parseInt(upgradeCost));
+        assert.equal(nftStruct0.charLevel, "1");
+        assert.equal(nftStruct1.charLevel, "2");
+        
+        //check that upgrade can't be done a second time
 
-        const allowanceValue2 = parseInt(await nftCreation.methods.allowance(accounts[0], accounts[1]).call());
+        await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[0], gas: '1000000' });
+        const assertionFunc = async() => {
+            await nftCreation.methods.upgradeNft(accounts[0], tokenId).send({ from: accounts[0], gas: '1000000' });
+        };
 
-        assert.equal(allowanceValue, transferAmount);
-        assert.equal(balance0_0 - transferAmount, balance0_1);
-        assert.equal(balance1_0 + transferAmount, balance1_1);
-        assert.equal(balance1_0 + balance0_0, balance1_1 + balance0_1);
+        assert.rejects(assertionFunc);
+
+    }).timeout(5000);
+
+    it('upgradeNft() doesn`t work if user doesn`t pay ERC20 tokens', async() => {
+        
+        await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[1], gas: '1000000' });
+        
+        //should fail because accounts[1] doesn't have any ERC20 tokens
+        const assertionFunc = async() => {
+            await nftCreation.methods.mintNft(accounts[0]).send({ from: accounts[1] })
+        };
+
+        assert.rejects(assertionFunc);
 
     });
 
