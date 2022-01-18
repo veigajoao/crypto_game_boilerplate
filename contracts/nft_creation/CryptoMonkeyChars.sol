@@ -22,6 +22,7 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         uint8 attr2;
         uint8 attr3;
         uint8 attr4;
+        uint8 salary;
     }
     mapping (uint256 => CharAttributes) public tokensAttributes;
 
@@ -123,7 +124,8 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
             attr1: uint8(_charAttr1),
             attr2: uint8(_charAttr2),
             attr3: uint8(_charAttr3),
-            attr4: uint8(_charAttr4)
+            attr4: uint8(_charAttr4),
+            salary: uint8(_charAttr1 * _charAttr2 * _charAttr3 * _charAttr4)
         });
 
     }
