@@ -13,8 +13,8 @@ The game project involves:
  The contract will have public functions that take a nft, evaluate some require() needs - such as 
  minimum wait time between games, char attributes, etc. and output new tokens for the player
 
-5. Marketplace contract
-6. locked wallets contracts
+4. Marketplace contract
+5. locked wallets contracts
 
  Locked wallets will be used to hold reserved funds for devs, investors, vendors, etc.
 

@@ -121,9 +121,13 @@ describe('CryptoMonkeyChars contract', () => {
         assert.equal(balance0, balance1 + parseInt(upgradeCost));
         assert.equal(nftStruct0.charLevel, "1");
         assert.equal(nftStruct1.charLevel, "2");
+
+        //assert correct Uri
+        const assetUri = await nftCreation.methods.tokenURI(tokenId).call();;
+        assert.equal(assetUri, baseURI + "/1.png");
+        
         
         //check that upgrade can't be done a second time
-
         await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[0], gas: '1000000' });
         const assertionFunc = async() => {
             await nftCreation.methods.upgradeNft(accounts[0], tokenId).send({ from: accounts[0], gas: '1000000' });
