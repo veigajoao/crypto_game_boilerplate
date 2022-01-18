@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "../nft_creation/CryptoMonkeyChars.sol";
 
-contract CryptoMonkeysGame {
+contract CryptoMonkeysGame is Ownable{
 
     address public ERC20TokenSourceWallet;
 
@@ -46,7 +47,7 @@ contract CryptoMonkeysGame {
      * @dev function to retrieve last time a nft was used for mining inside the game,
      * will be called to require a minimum time elapsed between game plays
      */
-    function getLastMiningMapping(uint256 _tokenId) internal view returns (uint256) {
+    function getLastMiningMapping(uint256 _tokenId) public view returns (uint256) {
         return lastMiningMapping[_tokenId];
     }
 
@@ -73,6 +74,26 @@ contract CryptoMonkeysGame {
 
         tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );
     
+    }
+
+    //owner reserved functions for changing contract behaviour
+
+    function setERC20TokenSourceWallet(address _address) public onlyOwner {
+        ERC20TokenSourceWallet = _address;
+    }
+
+    function setWaitPeriod(uint256 _waitPeriod) public onlyOwner {
+        waitPeriod = _waitPeriod;
+    }
+
+    function setTokenAddress(address _address) public onlyOwner {
+        tokenAddress = _address;
+        tokenContract = ERC20Burnable(tokenAddress);
+    }
+
+    function setNftAddress(address _address) public onlyOwner {
+        nftAddress = _address;
+        nftContract = CryptoMonkeyChars(nftAddress);
     }
 
 }

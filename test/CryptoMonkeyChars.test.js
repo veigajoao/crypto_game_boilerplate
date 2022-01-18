@@ -150,4 +150,46 @@ describe('CryptoMonkeyChars contract', () => {
 
     });
 
+    it('Ownable assigned to deployer', async() => {
+        const owner = await nftCreation.methods.owner().call();
+        assert.equal(owner, accounts[0])
+    });
+
+    it('Owner private functions work', async() => {
+        await nftCreation.methods.setTokenAddress(accounts[8]).send({ from: accounts[0] });
+        await nftCreation.methods.setMintCost("10").send({ from: accounts[0] });
+        await nftCreation.methods.setLevelUpCost("20").send({ from: accounts[0] });
+        await nftCreation.methods.setBaseUriString("ABDE").send({ from: accounts[0] });
+
+        const tokenAddress = await nftCreation.methods.tokenAddress().call();
+        const mintCost = await nftCreation.methods.mintCost().call();
+        const levelUpCost = await nftCreation.methods.levelUpCost().call();
+        const baseUriString = await nftCreation.methods.baseUriString().call();
+
+        assert.equal(tokenAddress, accounts[8]);
+        assert.equal(mintCost, "10");
+        assert.equal(levelUpCost, "20");
+        assert.equal(baseUriString, "ABDE");
+    });
+
+    it('Owner private functions don`t work if not called by owner', async() => {
+        const assertionFunc0 = async() => {
+            await nftCreation.methods.setTokenAddress(accounts[8]).send({ from: accounts[1] });
+        };
+        const assertionFunc1 = async() => {
+            await nftCreation.methods.setMintCost("10").send({ from: accounts[1] });
+        };
+        const assertionFunc2 = async() => {
+            await nftCreation.methods.setLevelUpCost("20").send({ from: accounts[1] });
+        };
+        const assertionFunc3 = async() => {
+            await nftCreation.methods.setBaseUriString("ABDE").send({ from: accounts[1] });
+        };
+
+        assert.rejects(assertionFunc0);
+        assert.rejects(assertionFunc1);
+        assert.rejects(assertionFunc2);
+        assert.rejects(assertionFunc3);
+    });
+
 });
