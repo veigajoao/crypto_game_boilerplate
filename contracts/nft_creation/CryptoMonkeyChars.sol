@@ -11,10 +11,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-
-    //mapping to nft boxes probabilities
-    mapping (uint16 => mapping (uint16 => uint16)) public probabilityMapping;
+    Counters.Counter public _tokenIds;
 
     //mapping to nft attributes
     struct CharAttributes {
@@ -51,70 +48,6 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
             levelUpCost = _levelUpCost;
             baseUriString = _baseUriString;
 
-            //setup probability mapping
-            uint16 _1prob;
-            uint16 _2prob;
-            uint16 _3prob;
-            uint16 _4prob;
-
-            uint8 i;
-            
-            //normal box
-            _1prob = 68;
-            _2prob = 22 + _1prob;
-            _3prob = 75 + _2prob;
-            _4prob = 25 + _3prob;
-
-            for (i=0; i<100; i++) {
-                if (i<_1prob) {
-                    probabilityMapping[1][i] = (i % 5) + 1;
-                } else if (i>_2prob) {
-                    probabilityMapping[1][i] = (i % 4) + 6;
-                } else if (i>_3prob) {
-                    probabilityMapping[1][i] = (i % 3) + 10;
-                } else if (i>_4prob) {
-                    probabilityMapping[1][i] = (i % 2) + 13;
-                }
-                
-            }
-
-            //rare box
-            _1prob = 30;
-            _2prob = 40 + _1prob;
-            _3prob = 20 + _2prob;
-            _4prob = 10 + _3prob;
-
-            for (i=0; i<100; i++) {
-                if (i<_1prob) {
-                    probabilityMapping[1][i] = (i % 5) + 1;
-                } else if (i>_2prob) {
-                    probabilityMapping[1][i] = (i % 4) + 6;
-                } else if (i>_3prob) {
-                    probabilityMapping[1][i] = (i % 3) + 10;
-                } else if (i>_4prob) {
-                    probabilityMapping[1][i] = (i % 2) + 13;
-                }
-                
-            }
-
-            //epic box
-            _1prob = 0;
-            _2prob = 40 + _1prob;
-            _3prob = 40 + _2prob;
-            _4prob = 20 + _3prob;
-
-            for (i=0; i<100; i++) {
-                if (i<_1prob) {
-                    probabilityMapping[1][i] = (i % 5) + 1;
-                } else if (i>_2prob) {
-                    probabilityMapping[1][i] = (i % 4) + 6;
-                } else if (i>_3prob) {
-                    probabilityMapping[1][i] = (i % 3) + 10;
-                } else if (i>_4prob) {
-                    probabilityMapping[1][i] = (i % 2) + 13;
-                }
-                
-            }
     }
 
     //override attributes of base classes that collude
@@ -170,7 +103,49 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
     function randomElement(uint256 tokenId) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, _tokenIds.current(), tokenId)));
     }
-    
+    /**
+     * @dev mapping of different monkey types
+     */
+    function _getMonkeyType(uint256 _seed, uint16 _probabilityMapping) internal pure returns (uint8) {
+        //declare rarities
+        uint8 commom;
+        uint8 rare;
+        uint8 epic;
+        uint8 legendary;
+
+        //adjust to _probabilityMapping
+        if (_probabilityMapping == 1) {
+            commom = 68;
+            rare = 22;
+            epic = 8;
+            legendary = 2;
+        } else if (_probabilityMapping == 2) {
+            commom = 30;
+            rare = 40;
+            epic = 20;
+            legendary = 10;
+        } else if (_probabilityMapping == 3) {
+            commom = 0;
+            rare = 40;
+            epic = 40;
+            legendary = 20;
+        }
+
+        //deliver result
+        if (_seed < commom) {
+            return uint8( (_seed % 5) + 1 );
+        } else if (_seed < commom + rare) {
+            return uint8( (_seed % 4) + 6 );
+        } else if (_seed < commom + rare + epic) {
+            return uint8( (_seed % 3) + 10 );
+        } else if (_seed < commom + rare + epic + legendary) {
+            return uint8( (_seed % 2) + 13 );
+        } else {
+            revert("Failure in random selection method");
+        }
+
+    }
+
     /**
      * @dev Sets all of the tokens relevant attributes (monkey tipe, level, 
      * mintTime and URI).
@@ -185,8 +160,7 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
      */
     function _setTokenAttributes(uint256 tokenId, uint16 _probabilityMapping) internal {
 
-        uint16 _randomness = uint16(randomElement(tokenId) % 100);
-        uint8 _monkeyType = uint8(probabilityMapping[_probabilityMapping][_randomness]);
+        uint8 _monkeyType = _getMonkeyType(randomElement(tokenId) % 100, _probabilityMapping);
 
         tokensAttributes[tokenId] = CharAttributes({
             monkeyType: _monkeyType,
