@@ -1,29 +1,9 @@
-const assert = require('assert');
-const ganache = require('ganache-cli');
-const Web3 = require('web3');
-const web3 = new Web3(ganache.provider());
+import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
+    mintCost2, mintCost3, upgradeCost, baseURI} from './_contractSetup.test.js';
 
-const path = require('path');
-const fs = require('fs');
-const contractPath = path.resolve(__dirname, '../bin/contracts/token_creation', 'BananaCoin.json');
-const bananaCoinCompile = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
-const abi = bananaCoinCompile.abi;
-const bytecode = bananaCoinCompile.bytecode;
+import assert from 'assert';
 
-let accounts;
-let bananaCoin;
-
-beforeEach(async() => {
-    // Get a list of all accounts
-    accounts = await web3.eth.getAccounts();
-    bananaCoin = await new web3.eth.Contract(abi)
-        .deploy({
-            data: bytecode,
-        })
-        .send({ from: accounts[0], gas: '1000000' });
-});
-
-describe('bananaCoin contract', () => {
+describe('BananaCoin contract', () => {
 
     it('deploys a contract', () => {
         assert.ok(bananaCoin.options.address);
@@ -31,7 +11,7 @@ describe('bananaCoin contract', () => {
 
     it('constructor() works correctly', async() => {
         const managerBalance = await bananaCoin.methods.balanceOf(accounts[0]).call();
-        assert.equal(managerBalance, 5.8 * 10**6);
+        assert.equal(managerBalance, 58 * 10**6);
     });
 
     it('name() is set correctly', async() => {

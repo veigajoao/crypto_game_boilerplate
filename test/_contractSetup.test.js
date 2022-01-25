@@ -1,10 +1,12 @@
-const assert = require('assert');
-const ganache = require('ganache-cli');
-const Web3 = require('web3');
+import ganache from 'ganache-cli';
+import Web3 from 'web3';
 const web3 = new Web3(ganache.provider());
 
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const contractPath = path.resolve(__dirname, '../bin/contracts/nft_creation', 'CryptoMonkeyChars.json');
 const nftCreationCompile = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
@@ -21,16 +23,20 @@ const gameCompile = JSON.parse(fs.readFileSync(contractPathGame, 'utf8'));
 const abiGame = gameCompile.abi;
 const bytecodeGame = gameCompile.bytecode;
 
+//deploy contracts
 let accounts;
 let nftCreation;
 let bananaCoin;
 let gameContract;
 
-let mintCost = '100';
+let mintCost1 = '100';
+let mintCost2 = '100';
+let mintCost3 = '100';
 let upgradeCost = '450';
 let baseURI = 'https://gateway.pinata.cloud/ipfs/Qmb86L8mUphwJGzLPwXNTRiK1S4scBdj9cc2Sev3s8uLiB';
 
-beforeEach(async() => {
+before(async function () {
+    this.timeout(10000);
     // Get a list of all accounts
     accounts = await web3.eth.getAccounts();
 
@@ -45,7 +51,7 @@ beforeEach(async() => {
     nftCreation = await new web3.eth.Contract(abi)
         .deploy({
             data: bytecode,
-            arguments: [bananaCoin.options.address, mintCost, upgradeCost, baseURI]
+            arguments: [bananaCoin.options.address, mintCost1, mintCost2, mintCost3, upgradeCost, baseURI]
         })
         .send({ from: accounts[0], gas: '5000000' });
 
@@ -58,10 +64,6 @@ beforeEach(async() => {
         .send({ from: accounts[0], gas: '5000000' });
 });
 
-describe('WhiteListedPresale contract', () => {
 
-    it('deploys a contract', () => {
-        assert.equal(1, 2);
-    });
-
-});
+export {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
+     mintCost2, mintCost3, upgradeCost, baseURI}

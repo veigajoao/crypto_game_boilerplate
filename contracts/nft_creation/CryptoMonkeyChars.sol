@@ -60,12 +60,12 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
             uint8 i;
             
             //normal box
-            _1prob = 675;
-            _2prob = 225 + _1prob;
+            _1prob = 68;
+            _2prob = 22 + _1prob;
             _3prob = 75 + _2prob;
             _4prob = 25 + _3prob;
 
-            for (i=0; i<1000; i++) {
+            for (i=0; i<100; i++) {
                 if (i<_1prob) {
                     probabilityMapping[1][i] = (i % 5) + 1;
                 } else if (i>_2prob) {
@@ -79,12 +79,12 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
             }
 
             //rare box
-            _1prob = 300;
-            _2prob = 400 + _1prob;
-            _3prob = 200 + _2prob;
-            _4prob = 100 + _3prob;
+            _1prob = 30;
+            _2prob = 40 + _1prob;
+            _3prob = 20 + _2prob;
+            _4prob = 10 + _3prob;
 
-            for (i=0; i<1000; i++) {
+            for (i=0; i<100; i++) {
                 if (i<_1prob) {
                     probabilityMapping[1][i] = (i % 5) + 1;
                 } else if (i>_2prob) {
@@ -99,11 +99,11 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
 
             //epic box
             _1prob = 0;
-            _2prob = 400 + _1prob;
-            _3prob = 400 + _2prob;
-            _4prob = 200 + _3prob;
+            _2prob = 40 + _1prob;
+            _3prob = 40 + _2prob;
+            _4prob = 20 + _3prob;
 
-            for (i=0; i<1000; i++) {
+            for (i=0; i<100; i++) {
                 if (i<_1prob) {
                     probabilityMapping[1][i] = (i % 5) + 1;
                 } else if (i>_2prob) {
@@ -185,7 +185,7 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
      */
     function _setTokenAttributes(uint256 tokenId, uint16 _probabilityMapping) internal {
 
-        uint16 _randomness = uint16(randomElement(tokenId) % 1000);
+        uint16 _randomness = uint16(randomElement(tokenId) % 100);
         uint8 _monkeyType = uint8(probabilityMapping[_probabilityMapping][_randomness]);
 
         tokensAttributes[tokenId] = CharAttributes({

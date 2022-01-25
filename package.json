@@ -1,5 +1,6 @@
 {
   "name": "crypto_game_boilerplate",
+  "type": "module",
   "version": "0.0.0",
   "description": "boilerplate for ethereum/bsc cryptogames",
   "main": "index.js",
