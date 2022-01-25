@@ -134,11 +134,11 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         //deliver result
         if (_seed < commom) {
             return uint8( (_seed % 5) + 1 );
-        } else if (_seed < commom + rare) {
+        } else if (_seed < (commom + rare) ) {
             return uint8( (_seed % 4) + 6 );
-        } else if (_seed < commom + rare + epic) {
+        } else if (_seed < (commom + rare + epic) ) {
             return uint8( (_seed % 3) + 10 );
-        } else if (_seed < commom + rare + epic + legendary) {
+        } else if (_seed < (commom + rare + epic + legendary) ) {
             return uint8( (_seed % 2) + 13 );
         } else {
             revert("Failure in random selection method");

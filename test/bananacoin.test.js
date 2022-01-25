@@ -11,7 +11,8 @@ describe('BananaCoin contract', () => {
 
     it('constructor() works correctly', async() => {
         const managerBalance = await bananaCoin.methods.balanceOf(accounts[0]).call();
-        assert.equal(managerBalance, 58 * 10**6);
+        const supplyAmount = 58 * 10**6
+        assert.equal(managerBalance, web3.utils.toWei(supplyAmount.toString(), "ether"));
     });
 
     it('name() is set correctly', async() => {

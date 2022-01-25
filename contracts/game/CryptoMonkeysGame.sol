@@ -7,16 +7,24 @@ import "../nft_creation/CryptoMonkeyChars.sol";
 
 contract CryptoMonkeysGame is Ownable{
 
+    //address for wallet holding play to earn funds
     address public ERC20TokenSourceWallet;
 
+    //address of ERC20 and ERC721 contracts
     address public tokenAddress;
     address public nftAddress;
 
+    //ERC20 and ERC721 interfaces
     ERC20Burnable public tokenContract;
     CryptoMonkeyChars public nftContract; 
 
+    //wait period controls
     uint256 public waitPeriod;
     mapping (uint256 => uint256) public lastMiningMapping;
+
+    //salary mappings
+    mapping (uint256 => uint256) public baseSalary;
+    mapping (uint256 => uint256) public upgradedSalary;
 
     constructor(
         address _ERC20TokenSourceWallet,
@@ -71,6 +79,24 @@ contract CryptoMonkeysGame is Ownable{
     function baseMining(uint256 _tokenId) public validateMiningConditions(_tokenId) {
 
         (uint8 monkeyType, , ) = nftContract.tokensAttributes(_tokenId);
+        //need to define monkey salary
+
+        tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );
+    
+    }
+
+    /**
+     * @dev function to do basic game minin, that can be perfomerd by any charm
+     * regardless of level, attributes, etc.
+     *
+     * @param _tokenId Id of the nft in the ERC721 contract
+     */
+    function level2Mining(uint256 _tokenId) public validateMiningConditions(_tokenId) {
+
+        (uint8 monkeyType, uint8 charLevel, ) = nftContract.tokensAttributes(_tokenId);
+        //require level 2 char
+        require(charLevel == 2, "CryptoMonkeysGame: Char level needs to be 2 to call this function"); 
+        
         //need to define monkey salary
 
         tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );

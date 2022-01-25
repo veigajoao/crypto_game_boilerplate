@@ -1,6 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
     mintCost2, mintCost3, upgradeCost, baseURI} from './_contractSetup.test.js';
-
+import BigNumber from 'bignumber.js';
 import assert from 'assert';
 
 describe('CryptoMonkeyChars contract', () => {
@@ -36,15 +36,15 @@ describe('CryptoMonkeyChars contract', () => {
         //approve spending in ERC20 contract
         await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
 
-        const balance0 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
-        const balance0nft = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
+        const balance0 = BigNumber(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance0nft = BigNumber(await nftCreation.methods.balanceOf(accounts[0]).call());
 
         await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
 
-        const balance1 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
-        const balance1nft = parseInt(await nftCreation.methods.balanceOf(accounts[0]).call());
+        const balance1 = BigNumber(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance1nft = BigNumber(await nftCreation.methods.balanceOf(accounts[0]).call());
 
-        assert.equal(balance0, balance1 + parseInt(mintCost1));
+        assert.equal(balance0.comparedTo(BigNumber.sum(balance1, mintCost1)), 0);
         assert.equal(balance0nft, balance1nft - 1);
         
     });
@@ -91,10 +91,11 @@ describe('CryptoMonkeyChars contract', () => {
 
         //comment this assertion out for full test. This it test takes a lot of time and doesn't need to 
         // be run every single time, only before commits
-        //assert.equal(1, 2);
+        assert.equal(1, 2);
 
         //tooling to calculate z score of arrays
-        const zScoreTolerance = 0.07;
+        const zScoreTolerance = 0.10;
+        const sampleSize = 500;
 
         const stdDevFunc = (p) => {
             return  (p*(1-p))**0.5;
@@ -131,8 +132,6 @@ describe('CryptoMonkeyChars contract', () => {
         const commonThresh = 6;
         const rareThresh = 10;
         const epicThresh = 13;
-
-        const sampleSize = 300;
 
         let zIndexCommon;
         let zIndexRare;
@@ -264,14 +263,15 @@ describe('CryptoMonkeyChars contract', () => {
         const tokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 0).call();
 
         const nftStruct0 = await nftCreation.methods.tokensAttributes(tokenId).call();
-        const balance0 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance0 = BigNumber(await bananaCoin.methods.balanceOf(accounts[0]).call());
 
         await nftCreation.methods.upgradeNft(accounts[0], tokenId).send({ from: accounts[0], gas: '1000000' });
 
-        const balance1 = parseInt(await bananaCoin.methods.balanceOf(accounts[0]).call());
+        const balance1 = BigNumber(await bananaCoin.methods.balanceOf(accounts[0]).call());
         const nftStruct1 = await nftCreation.methods.tokensAttributes(tokenId).call();
 
-        assert.equal(balance0, balance1 + parseInt(upgradeCost));
+        
+        assert.equal(balance0.comparedTo(BigNumber.sum(balance1, upgradeCost)), 0);
         assert.equal(nftStruct0.charLevel, "1");
         assert.equal(nftStruct1.charLevel, "2");
 

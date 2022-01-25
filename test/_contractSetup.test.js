@@ -1,5 +1,6 @@
 import ganache from 'ganache-cli';
 import Web3 from 'web3';
+import BigNumber from 'bignumber.js';
 
 const options = { gasLimit: 10000000 };
 const web3 = new Web3(ganache.provider(options));
@@ -31,10 +32,10 @@ let nftCreation;
 let bananaCoin;
 let gameContract;
 
-let mintCost1 = '100';
-let mintCost2 = '100';
-let mintCost3 = '100';
-let upgradeCost = '450';
+let mintCost1 = web3.utils.toWei("100", 'ether');
+let mintCost2 = web3.utils.toWei("250", 'ether');
+let mintCost3 = web3.utils.toWei("400", 'ether');
+let upgradeCost = web3.utils.toWei('450', 'ether');
 let baseURI = 'https://gateway.pinata.cloud/ipfs/Qmb86L8mUphwJGzLPwXNTRiK1S4scBdj9cc2Sev3s8uLiB';
 
 before(async function () {
