@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -14,21 +13,22 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    //mapping to nft boxes probabilities
+    mapping (uint16 => mapping (uint16 => uint16)) public probabilityMapping;
+
     //mapping to nft attributes
     struct CharAttributes {
         uint8 monkeyType;
         uint8 charLevel;
-        uint8 attr1;
-        uint8 attr2;
-        uint8 attr3;
-        uint8 attr4;
-        uint8 salary;
+        uint256 mintTime;
     }
     mapping (uint256 => CharAttributes) public tokensAttributes;
 
     //call to ERC20 contract
     address public tokenAddress;
-    uint256 public mintCost;
+
+    //define costs of interactions
+    mapping (uint16 => uint256) public mintCost;
     uint256 public levelUpCost;
 
     //base URI location
@@ -36,14 +36,85 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
 
     constructor(
         address _tokenAddress, 
-        uint256 _mintCost, 
+        uint256 _mintCostBasic,
+        uint256 _mintCostRare,
+        uint256 _mintCostLegendary,
         uint256 _levelUpCost,
         string memory _baseUriString
         ) ERC721("CryptoMonkeys", "CMONKEYS") {
+
+            //setup owner variables
             tokenAddress = _tokenAddress;
-            mintCost = _mintCost;
+            mintCost[1] = _mintCostBasic;
+            mintCost[2] = _mintCostRare;
+            mintCost[3] = _mintCostLegendary;
             levelUpCost = _levelUpCost;
             baseUriString = _baseUriString;
+
+            //setup probability mapping
+            uint16 _1prob;
+            uint16 _2prob;
+            uint16 _3prob;
+            uint16 _4prob;
+
+            uint8 i;
+            
+            //normal box
+            _1prob = 675;
+            _2prob = 225 + _1prob;
+            _3prob = 75 + _2prob;
+            _4prob = 25 + _3prob;
+
+            for (i=0; i<1000; i++) {
+                if (i<_1prob) {
+                    probabilityMapping[1][i] = (i % 5) + 1;
+                } else if (i>_2prob) {
+                    probabilityMapping[1][i] = (i % 4) + 6;
+                } else if (i>_3prob) {
+                    probabilityMapping[1][i] = (i % 3) + 10;
+                } else if (i>_4prob) {
+                    probabilityMapping[1][i] = (i % 2) + 13;
+                }
+                
+            }
+
+            //rare box
+            _1prob = 300;
+            _2prob = 400 + _1prob;
+            _3prob = 200 + _2prob;
+            _4prob = 100 + _3prob;
+
+            for (i=0; i<1000; i++) {
+                if (i<_1prob) {
+                    probabilityMapping[1][i] = (i % 5) + 1;
+                } else if (i>_2prob) {
+                    probabilityMapping[1][i] = (i % 4) + 6;
+                } else if (i>_3prob) {
+                    probabilityMapping[1][i] = (i % 3) + 10;
+                } else if (i>_4prob) {
+                    probabilityMapping[1][i] = (i % 2) + 13;
+                }
+                
+            }
+
+            //epic box
+            _1prob = 0;
+            _2prob = 400 + _1prob;
+            _3prob = 400 + _2prob;
+            _4prob = 200 + _3prob;
+
+            for (i=0; i<1000; i++) {
+                if (i<_1prob) {
+                    probabilityMapping[1][i] = (i % 5) + 1;
+                } else if (i>_2prob) {
+                    probabilityMapping[1][i] = (i % 4) + 6;
+                } else if (i>_3prob) {
+                    probabilityMapping[1][i] = (i % 3) + 10;
+                } else if (i>_4prob) {
+                    probabilityMapping[1][i] = (i % 2) + 13;
+                }
+                
+            }
     }
 
     //override attributes of base classes that collude
@@ -96,37 +167,33 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
     /**
     * @dev source of randomness for contract
     */
-    function randomElement(uint256 tokenId) private view returns (uint256) {
+    function randomElement(uint256 tokenId) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, _tokenIds.current(), tokenId)));
     }
     
     /**
-     * @dev Sets `_tokenURI` as the CharAttributes of `tokenId`.
+     * @dev Sets all of the tokens relevant attributes (monkey tipe, level, 
+     * mintTime and URI).
      *
      * @param tokenId id of created token
+     * @param _probabilityMapping id of the probebility mapping to be used accordingly to type of
+     * box purchased by player
      * Requirements:
      *
      * - `tokenId` must exist.
      * - `tokenId` must not be a mapping key already
      */
-    function _setTokenAttributes(uint256 tokenId) internal {
-        //require(tokensAttributes[tokenId].monkeyType > 0, "CryptoMonkeyChar: token attributes were already set");
+    function _setTokenAttributes(uint256 tokenId, uint16 _probabilityMapping) internal {
 
-        uint256 _charType = randomElement(tokenId) % 10;
-        uint256 _charAttr1 = randomElement(tokenId) % 100;
-        uint256 _charAttr2 = randomElement(tokenId) % 100;
-        uint256 _charAttr3 = randomElement(tokenId) % 100;
-        uint256 _charAttr4 = randomElement(tokenId) % 100;
+        uint16 _randomness = uint16(randomElement(tokenId) % 1000);
+        uint8 _monkeyType = uint8(probabilityMapping[_probabilityMapping][_randomness]);
 
         tokensAttributes[tokenId] = CharAttributes({
-            monkeyType: uint8(_charType),
+            monkeyType: _monkeyType,
             charLevel: 1,
-            attr1: uint8(_charAttr1),
-            attr2: uint8(_charAttr2),
-            attr3: uint8(_charAttr3),
-            attr4: uint8(_charAttr4),
-            salary: uint8(_charAttr1 * _charAttr2 * _charAttr3 * _charAttr4)
+            mintTime: block.timestamp
         });
+        _setTokenURI(tokenId, string(abi.encodePacked("/", Strings.toString(_monkeyType), ".png")));
 
     }
 
@@ -136,16 +203,17 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
      * @param recipient address that wishes to mint the nft
      * need to add support for multiple box types and prices
      */
-    function mintNft(address recipient) public {
+    function mintNft(address recipient, uint16 _probabilityMapping) public {
+
+        require(_probabilityMapping == 1 || _probabilityMapping == 2 || _probabilityMapping == 3, "CryptoMonkeyChars: mintNft: _probabilityMapping must belong to uint16[1, 2, 3]");
 
         ERC20Burnable tokenContract = ERC20Burnable(tokenAddress);
-        tokenContract.burnFrom(recipient, mintCost);
+        tokenContract.burnFrom(recipient, mintCost[_probabilityMapping]);
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _mint(recipient, newItemId);
-        _setTokenURI(newItemId, string(abi.encodePacked("/", Strings.toString(newItemId), ".png")));
-        _setTokenAttributes(newItemId);
+        _setTokenAttributes(newItemId, _probabilityMapping);
 
     }
 
@@ -177,8 +245,10 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         tokenAddress = _address;
     }
 
-    function setMintCost(uint256 _cost) public onlyOwner {
-        mintCost = _cost;
+    function setMintCost(uint256 _cost1, uint256 _cost2, uint256 _cost3) public onlyOwner {
+        mintCost[1] = _cost1;
+        mintCost[2] = _cost2;
+        mintCost[3] = _cost3;
     }
 
     function setLevelUpCost(uint256 _cost) public onlyOwner {

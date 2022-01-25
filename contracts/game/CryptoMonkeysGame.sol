@@ -70,7 +70,8 @@ contract CryptoMonkeysGame is Ownable{
      */
     function baseMining(uint256 _tokenId) public validateMiningConditions(_tokenId) {
 
-        (, , , , , , uint8 salary) = nftContract.tokensAttributes(_tokenId);
+        (uint8 monkeyType, , ) = nftContract.tokensAttributes(_tokenId);
+        //need to define monkey salary
 
         tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );
     
