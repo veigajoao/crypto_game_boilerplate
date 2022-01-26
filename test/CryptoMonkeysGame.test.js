@@ -1,5 +1,5 @@
-import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
-    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, 
+import {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
+    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary,
     upgradedSalaryMultiplier, upgradedSalary} from './_contractSetup.test.js';
 
 import BigNumber from 'bignumber.js';
@@ -175,6 +175,53 @@ describe('CryptoMonkeysGame contract', () => {
         const userWalletBalance = await bananaCoin.methods.balanceOf(accounts[0]).call();
         const userAvailableBalance0 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
 
+        //pass time
+
+        console.log(await testContract.methods.getCurrentTime().call());
+
+        const timeTravel = function (time) {
+            return new Promise((resolve, reject) => {
+              web3.currentProvider.sendAsync({
+                jsonrpc: "2.0",
+                method: "evm_increaseTime",
+                params: [time], // 86400 is num seconds in day
+                id: new Date().getTime()
+              }, (err, result) => {
+                if(err){
+                    console.log(err);
+                    return reject(err) 
+                }
+                return resolve(result)
+              });
+            })
+        }
+        
+        const mineBlock = function () {
+            return new Promise((resolve, reject) => {
+                web3.currentProvider.sendAsync({
+                jsonrpc: "2.0",
+                method: "evm_mine",
+                params: [],
+                id: new Date().getTime()
+                }, (err, result) => {
+                if(err){
+                    console.log(err);
+                    return reject(err) 
+                }
+                return resolve(result)
+                });
+            })
+        }
+
+        await timeTravel(60 * 60 * 24 * 4);
+        await mineBlock();
+        
+        console.log(await testContract.methods.getCurrentTime().call());
+
+        //check new available balance
+        const userAvailableBalance1 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+        console.log(userAvailableBalance1);
+
         //send over to wallet
         await gameContract.methods.withdrawalUserBalance().send({
             from: accounts[0], gas: "1000000"
@@ -182,8 +229,8 @@ describe('CryptoMonkeysGame contract', () => {
 
         
         //check wallet = accountBalance + balance0
-        const userWalletBalance = await bananaCoin.methods.balanceOf(accounts[0]).call();
-        const userAvailableBalance1 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+        const userWalletBalance1 = await bananaCoin.methods.balanceOf(accounts[0]).call();
+        const userAvailableBalance3 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
         const contractWalletBalance = await bananaCoin.methods.balanceOf(accounts[2]).call();
         
         assert.equal(userAvailableBalance1, "0");

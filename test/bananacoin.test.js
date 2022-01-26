@@ -1,5 +1,5 @@
-import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
-    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, 
+import {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
+    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary,
     upgradedSalaryMultiplier, upgradedSalary} from './_contractSetup.test.js';
 
 import assert from 'assert';

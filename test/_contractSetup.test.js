@@ -28,11 +28,17 @@ const gameCompile = JSON.parse(fs.readFileSync(contractPathGame, 'utf8'));
 const abiGame = gameCompile.abi;
 const bytecodeGame = gameCompile.bytecode;
 
+const contractPathTesting = path.resolve(__dirname, '../bin/contracts/testing', 'Testing.json');
+const testingCompile = JSON.parse(fs.readFileSync(contractPathTesting, 'utf8'));
+const abiTesting = testingCompile.abi;
+const bytecodeTeting = testingCompile.bytecode;
+
 //deploy contracts
 let accounts;
 let nftCreation;
 let bananaCoin;
 let gameContract;
+let testContract;
 
 let mintCost1 = web3.utils.toWei("100", 'ether');
 let mintCost2 = web3.utils.toWei("250", 'ether');
@@ -105,8 +111,15 @@ before(async function () {
                         baseSalary, upgradedSalary, withdrawalTime, withdrawalLoss]
         })
         .send({ from: accounts[0], gas: '5000000' });
+
+    //deploy auxiliary testing contract
+    testContract = await new web3.eth.Contract(abiTesting)
+        .deploy({
+            data: bytecodeTeting,
+        })
+        .send({ from: accounts[0], gas: '5000000' });
 });
 
 
-export {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
+export {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
      mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, upgradedSalary}
