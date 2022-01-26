@@ -26,11 +26,21 @@ contract CryptoMonkeysGame is Ownable{
     mapping (uint256 => uint256) public baseSalary;
     mapping (uint256 => uint256) public upgradedSalary;
 
+    //sets balance of users
+    mapping (address => uint256) public userBalance;
+    mapping (address => uint256) public lastWithdrawal;
+    uint256 public withdrawalTime;
+    uint256 public withdrawalLoss;
+
     constructor(
         address _ERC20TokenSourceWallet,
         address _tokenAddress, 
         address _nftAddress,
-        uint256 _waitPeriod) {
+        uint256 _waitPeriod,
+        uint256[14] memory _baseSalary,
+        uint256[14] memory _upgradedSalary,
+        uint256 _withdrawalTime,
+        uint256 _withdrawalLoss) {
             
             ERC20TokenSourceWallet = _ERC20TokenSourceWallet;
             tokenAddress = _tokenAddress;
@@ -39,6 +49,40 @@ contract CryptoMonkeysGame is Ownable{
 
             tokenContract = ERC20Burnable(tokenAddress);
             nftContract = CryptoMonkeyChars(nftAddress);
+
+            baseSalary[1] = _baseSalary[0];
+            baseSalary[2] = _baseSalary[1];
+            baseSalary[3] = _baseSalary[2];
+            baseSalary[4] = _baseSalary[3];
+            baseSalary[5] = _baseSalary[4];
+            baseSalary[6] = _baseSalary[5];
+            baseSalary[7] = _baseSalary[6];
+            baseSalary[8] = _baseSalary[7];
+            baseSalary[9] = _baseSalary[8];
+            baseSalary[10] = _baseSalary[9];
+            baseSalary[11] = _baseSalary[10];
+            baseSalary[12] = _baseSalary[11];
+            baseSalary[13] = _baseSalary[12];
+            baseSalary[14] = _baseSalary[13];
+
+            upgradedSalary[1] = _upgradedSalary[0];
+            upgradedSalary[2] = _upgradedSalary[1];
+            upgradedSalary[3] = _upgradedSalary[2];
+            upgradedSalary[4] = _upgradedSalary[3];
+            upgradedSalary[5] = _upgradedSalary[4];
+            upgradedSalary[6] = _upgradedSalary[5];
+            upgradedSalary[7] = _upgradedSalary[6];
+            upgradedSalary[8] = _upgradedSalary[7];
+            upgradedSalary[9] = _upgradedSalary[8];
+            upgradedSalary[10] = _upgradedSalary[9];
+            upgradedSalary[11] = _upgradedSalary[10];
+            upgradedSalary[12] = _upgradedSalary[11];
+            upgradedSalary[13] = _upgradedSalary[12];
+            upgradedSalary[14] = _upgradedSalary[13];
+
+            require(_withdrawalLoss > 1, "CryptoMonkeysGame: _withdrawalLoss must be > 1 (write in absolute, for 70%, write 70)");
+            withdrawalTime = _withdrawalTime;
+            withdrawalLoss = _withdrawalLoss; 
             
     }
 
@@ -79,9 +123,10 @@ contract CryptoMonkeysGame is Ownable{
     function baseMining(uint256 _tokenId) public validateMiningConditions(_tokenId) {
 
         (uint8 monkeyType, , ) = nftContract.tokensAttributes(_tokenId);
-        //need to define monkey salary
-
-        tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );
+        
+        //fetch monkey salary and transfer
+        uint256 salary = baseSalary[uint256(monkeyType)];
+        userBalance[msg.sender] += salary;
     
     }
 
@@ -97,10 +142,47 @@ contract CryptoMonkeysGame is Ownable{
         //require level 2 char
         require(charLevel == 2, "CryptoMonkeysGame: Char level needs to be 2 to call this function"); 
         
-        //need to define monkey salary
-
-        tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, uint256(salary) );
+        //fetch monkey salary and transfer
+        uint256 salary = upgradedSalary[uint256(monkeyType)];
+        userBalance[msg.sender] += salary;
+        // tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, salary);
     
+    }
+
+    //User balance functions
+
+    /**
+     * @dev internal function to get balance that user can actually withdrawal
+     * after discounting any fees for not waiting long enough
+     */
+    function _getUserWithdrawalTerms(address _address) internal view returns (uint256) {
+        uint256 _userBalance = userBalance[_address];
+        uint256 _lastWithdrawal = lastWithdrawal[_address];
+        uint256 _availableFundsMultiplier = ( (block.timestamp - _lastWithdrawal) / withdrawalTime) * withdrawalLoss;
+        uint256 _availableFunds;
+        if (_availableFundsMultiplier >= 1) {
+            _availableFunds = _userBalance;
+        } else {
+            _availableFunds = _userBalance * _availableFundsMultiplier / 100;
+        }
+        return _availableFunds;
+    }
+
+    /**
+     * @dev function to withdrawal current user balance
+     */
+    function withdrawalUserBalance() public {
+        uint256 _userAvailableBalance = _getUserWithdrawalTerms(msg.sender);
+        userBalance[msg.sender] = 0;
+        lastWithdrawal[msg.sender] = block.timestamp;
+        tokenContract.transferFrom(ERC20TokenSourceWallet, msg.sender, _userAvailableBalance);
+    }
+
+    /**
+     * @dev function to get user balance
+     */
+    function getBalance(address _address) public view returns (uint256) {
+        return _getUserWithdrawalTerms(_address);
     }
 
     //owner reserved functions for changing contract behaviour
@@ -123,4 +205,41 @@ contract CryptoMonkeysGame is Ownable{
         nftContract = CryptoMonkeyChars(nftAddress);
     }
 
+    function setSalaries(uint256[14] memory _baseSalary, uint256[14] memory _upgradedSalary) public onlyOwner {
+        baseSalary[1] = _baseSalary[0];
+        baseSalary[2] = _baseSalary[1];
+        baseSalary[3] = _baseSalary[2];
+        baseSalary[4] = _baseSalary[3];
+        baseSalary[5] = _baseSalary[4];
+        baseSalary[6] = _baseSalary[5];
+        baseSalary[7] = _baseSalary[6];
+        baseSalary[8] = _baseSalary[7];
+        baseSalary[9] = _baseSalary[8];
+        baseSalary[10] = _baseSalary[9];
+        baseSalary[11] = _baseSalary[10];
+        baseSalary[12] = _baseSalary[11];
+        baseSalary[13] = _baseSalary[12];
+        baseSalary[14] = _baseSalary[13];
+
+        upgradedSalary[1] = _upgradedSalary[0];
+        upgradedSalary[2] = _upgradedSalary[1];
+        upgradedSalary[3] = _upgradedSalary[2];
+        upgradedSalary[4] = _upgradedSalary[3];
+        upgradedSalary[5] = _upgradedSalary[4];
+        upgradedSalary[6] = _upgradedSalary[5];
+        upgradedSalary[7] = _upgradedSalary[6];
+        upgradedSalary[8] = _upgradedSalary[7];
+        upgradedSalary[9] = _upgradedSalary[8];
+        upgradedSalary[10] = _upgradedSalary[9];
+        upgradedSalary[11] = _upgradedSalary[10];
+        upgradedSalary[12] = _upgradedSalary[11];
+        upgradedSalary[13] = _upgradedSalary[12];
+        upgradedSalary[14] = _upgradedSalary[13];
+    }
+
+    function setWithdrawal(uint256 _withdrawalTime, uint256 _withdrawalLoss) public onlyOwner {
+        require(_withdrawalLoss > 1, "CryptoMonkeysGame: _withdrawalLoss must be > 1 (write in absolute, for 70%, write 70)");
+        withdrawalTime = _withdrawalTime;
+        withdrawalLoss = _withdrawalLoss;
+    }
 }

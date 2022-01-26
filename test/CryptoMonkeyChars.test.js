@@ -1,5 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
-    mintCost2, mintCost3, upgradeCost, baseURI} from './_contractSetup.test.js';
+    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, 
+    upgradedSalaryMultiplier, upgradedSalary} from './_contractSetup.test.js';
 import BigNumber from 'bignumber.js';
 import assert from 'assert';
 

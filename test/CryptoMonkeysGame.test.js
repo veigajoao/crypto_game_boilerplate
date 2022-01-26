@@ -1,5 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, mintCost1,
-    mintCost2, mintCost3, upgradeCost, baseURI} from './_contractSetup.test.js';
+    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, 
+    upgradedSalaryMultiplier, upgradedSalary} from './_contractSetup.test.js';
 
 import assert from 'assert';
 
@@ -15,21 +16,29 @@ describe('CryptoMonkeysGame contract', () => {
         const tokenAddress = await gameContract.methods.tokenAddress().call();
         const nftAddress = await gameContract.methods.nftAddress().call();
         const waitPeriod = await gameContract.methods.waitPeriod().call();
+        let baseSalaryMapping = [];
+        let upgradedSalaryMapping = [];
+        for (let i=1; i<=14; i++) {
+            baseSalaryMapping.push( await gameContract.methods.baseSalary(i).call() );
+            upgradedSalaryMapping.push( await gameContract.methods.upgradedSalary(i).call() );
+        }
 
         assert.equal(sourceWallet, accounts[2]);
         assert.equal(tokenAddress, bananaCoin.options.address);
         assert.equal(nftAddress, nftCreation.options.address);
-        assert.equal(waitPeriod, 60 * 60 * 3);
-    });
+        assert.equal(waitPeriod, 60 * 60 * 8);
+        assert.equal(baseSalaryMapping.length, baseSalary.length);
+        assert( baseSalaryMapping.every((val, index) => val === baseSalary[index]) );
+        assert.equal(upgradedSalaryMapping.length, upgradedSalary.length);
+        assert( upgradedSalaryMapping.every((val, index) => val === upgradedSalary[index]) );
+
+    }).timeout(10000);
 
     it('getLastMiningMapping() works correctly', async() => {
 
-        //mint NFT
-        await bananaCoin.methods.approve(nftCreation.options.address, mintCost).send({ from: accounts[0], gas: '1000000' });
-        await nftCreation.methods.mintNft(accounts[0]).send({ from: accounts[0], gas: '1000000' });
+        //get lastMiningMapping
         const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 0).call();
 
-        //get lastMiningMapping
         const lastMiningMapping = await gameContract.methods.getLastMiningMapping(nftTokenId).call();
 
         assert.equal(lastMiningMapping, 0);
