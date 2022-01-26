@@ -110,6 +110,12 @@ contract CryptoMonkeysGame is Ownable{
     modifier validateMiningConditions(uint256 _tokenId) {
         require( nftContract.ownerOf(_tokenId) == msg.sender, "CryptoMonkeysGame: trying to use nft that belongs to different address");
         require( block.timestamp > getLastMiningMapping(_tokenId) + waitPeriod, "CryptoMonkeysGame: waitPeriod not yet elapsed");
+        
+        // make sure the first withdrawal will only be made after the withsrawal period (initialliza
+        // wallet in the lastWithdrawal mapping)
+        if (lastWithdrawal[msg.sender] == 0) {
+            lastWithdrawal[msg.sender] = block.timestamp;
+        }
         _;
         setLastMiningMapping(_tokenId);
     }
@@ -156,16 +162,19 @@ contract CryptoMonkeysGame is Ownable{
      * after discounting any fees for not waiting long enough
      */
     function _getUserWithdrawalTerms(address _address) internal view returns (uint256) {
+
         uint256 _userBalance = userBalance[_address];
-        uint256 _lastWithdrawal = lastWithdrawal[_address];
-        uint256 _availableFundsMultiplier = ( (block.timestamp - _lastWithdrawal) / withdrawalTime) * withdrawalLoss;
+        uint256 _timeElapsed = block.timestamp - lastWithdrawal[_address];
+
         uint256 _availableFunds;
-        if (_availableFundsMultiplier >= 1) {
-            _availableFunds = _userBalance;
+
+        if (_timeElapsed < withdrawalTime) {
+            _availableFunds = _userBalance * (_timeElapsed / withdrawalTime) * withdrawalLoss / 100;
         } else {
-            _availableFunds = _userBalance * _availableFundsMultiplier / 100;
+            _availableFunds = _userBalance;
         }
         return _availableFunds;
+
     }
 
     /**
@@ -179,9 +188,9 @@ contract CryptoMonkeysGame is Ownable{
     }
 
     /**
-     * @dev function to get user balance
+     * @dev function to get user balance that is already available for withdrawing
      */
-    function getBalance(address _address) public view returns (uint256) {
+    function getAvailableBalance(address _address) public view returns (uint256) {
         return _getUserWithdrawalTerms(_address);
     }
 

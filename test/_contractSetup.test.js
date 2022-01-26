@@ -51,6 +51,8 @@ let upgradedSalaryMultiplier = "2";
 let upgradedSalary = baseSalary1.map((item) => {
     return web3.utils.toWei(item.multipliedBy(upgradedSalaryMultiplier).toString(), 'ether');
 });
+let withdrawalTime = 60 * 60 * 24 * 7;
+let withdrawalLoss = 70
 
 before(async function () {
     this.timeout(15000);
@@ -91,7 +93,7 @@ before(async function () {
     .deploy({
         data: bytecodeGame,
         arguments: [accounts[2], bananaCoin.options.address, nftCreation.options.address, 60 * 60 * 8,
-                        baseSalary, upgradedSalary]
+                        baseSalary, upgradedSalary, withdrawalTime, withdrawalLoss]
     }).estimateGas();
 
     console.log("game contract estimated gas need is: " + deployCostGame);
@@ -100,7 +102,7 @@ before(async function () {
         .deploy({
             data: bytecodeGame,
             arguments: [accounts[2], bananaCoin.options.address, nftCreation.options.address, 60 * 60 * 8,
-                        baseSalary, upgradedSalary]
+                        baseSalary, upgradedSalary, withdrawalTime, withdrawalLoss]
         })
         .send({ from: accounts[0], gas: '5000000' });
 });
