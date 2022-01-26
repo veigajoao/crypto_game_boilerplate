@@ -1,6 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
-    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary,
-    upgradedSalaryMultiplier, upgradedSalary} from './_contractSetup.test.js';
+    mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
+    upgradedSalary, withdrawalTime, withdrawalLoss} from './_contractSetup.test.js';
 
 import BigNumber from 'bignumber.js';
 import assert from 'assert';
@@ -160,23 +160,9 @@ describe('CryptoMonkeysGame contract', () => {
 
     });
 
-    it('withdrawalUserBalance() works correctly', async () => {
+    it('_getUserWithdrawalTerms() and getAvailableBalance() work correctly', async () => {
 
-        //authorize contract to send funds from accounts[2]
-        const transferAmount = web3.utils.toWei("51000000", 'ether');
-        await bananaCoin.methods.transfer(accounts[2], transferAmount).send({
-            from: accounts[0]
-        });
-        await bananaCoin.methods.approve(gameContract.options.address, transferAmount).send({
-            from: accounts[2]
-        });
-
-        //check available balance
-        const userWalletBalance = await bananaCoin.methods.balanceOf(accounts[0]).call();
-        const userAvailableBalance0 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
-
-        //pass time
-
+        //functions to time machine test blockchain
         const timeTravel = function (time) {
             return new Promise((resolve, reject) => {
               web3.currentProvider.sendAsync({
@@ -211,28 +197,70 @@ describe('CryptoMonkeysGame contract', () => {
             })
         }
 
-        await timeTravel(60 * 60 * 24 * 4);
+        const userAvailableBalance0 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+        const userFullBalance0 = await gameContract.methods.userBalance(accounts[0]).call();
+        const balanceRatio0 = userAvailableBalance0/userFullBalance0;
+
+        //pass time
+
+        const elapsedTime1 = withdrawalTime * 0.5;
+        await timeTravel(elapsedTime1);
         await mineBlock();
 
         //check new available balance
         const userAvailableBalance1 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
-        console.log(userAvailableBalance1);
-        console.log(await gameContract.methods.userBalance(accounts[0]).call());
+        const userFullBalance1 = await gameContract.methods.userBalance(accounts[0]).call();
+        const balanceRatio1 = userAvailableBalance1/userFullBalance1;
+
+        //pass time 2
+
+        const elapsedTime2 = withdrawalTime * 0.5;
+        await timeTravel(elapsedTime2);
+        await mineBlock();
+
+        //check new available balance
+        const userAvailableBalance2 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+        const userFullBalance2 = await gameContract.methods.userBalance(accounts[0]).call();
+        const balanceRatio2 = userAvailableBalance2/userFullBalance2;
+
+        //asert that at time zero, user can withdrawal only 30%
+        assert(balanceRatio0 > (100 - withdrawalLoss)/100 );
+        assert(balanceRatio0 < (100 - withdrawalLoss + 1)/100 );
+
+        //asert that at time 1, user can withdrawal only 30% + elapsed time
+        assert(balanceRatio1 > (100 - withdrawalLoss)/100 + (withdrawalLoss/100) * (elapsedTime1/withdrawalTime) );
+        assert(balanceRatio1 < (100 - withdrawalLoss + 1)/100 + (withdrawalLoss/100) * (elapsedTime1/withdrawalTime) );
+
+        //asert that at time 2, user can withdrawal full balance
+        assert.equal(balanceRatio2, 1);
+
+    }).timeout(10000);
+
+    it('withdrawalUserBalance() works correctly', async () => {
+
+        //authorize contract to send funds from accounts[2]
+        const transferAmount = web3.utils.toWei("51000000", 'ether');
+        await bananaCoin.methods.transfer(accounts[2], transferAmount).send({
+            from: accounts[0]
+        });
+        await bananaCoin.methods.approve(gameContract.options.address, transferAmount).send({
+            from: accounts[2]
+        });
+
+        //check available balance
+        const contractWalletBalance0 = await bananaCoin.methods.balanceOf(accounts[2]).call();
+        const userWalletBalance0 = await bananaCoin.methods.balanceOf(accounts[0]).call();
 
         //send over to wallet
         await gameContract.methods.withdrawalUserBalance().send({
             from: accounts[0], gas: "1000000"
         });
 
-        
         //check wallet = accountBalance + balance0
+        const contractWalletBalance1 = await bananaCoin.methods.balanceOf(accounts[2]).call();
         const userWalletBalance1 = await bananaCoin.methods.balanceOf(accounts[0]).call();
-        const userAvailableBalance3 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
-        const contractWalletBalance = await bananaCoin.methods.balanceOf(accounts[2]).call();
         
-        assert.equal(userAvailableBalance1, "0");
-
-    }).timeout(10000);
+    });
 
     it('Ownable assigned to deployer', async() => {
         const owner = await gameContract.methods.owner().call();

@@ -122,4 +122,5 @@ before(async function () {
 
 
 export {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
-     mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, upgradedSalary}
+     mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
+     upgradedSalary, withdrawalTime, withdrawalLoss}
