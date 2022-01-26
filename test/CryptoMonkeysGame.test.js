@@ -177,8 +177,6 @@ describe('CryptoMonkeysGame contract', () => {
 
         //pass time
 
-        console.log(await testContract.methods.getCurrentTime().call());
-
         const timeTravel = function (time) {
             return new Promise((resolve, reject) => {
               web3.currentProvider.sendAsync({
@@ -215,12 +213,11 @@ describe('CryptoMonkeysGame contract', () => {
 
         await timeTravel(60 * 60 * 24 * 4);
         await mineBlock();
-        
-        console.log(await testContract.methods.getCurrentTime().call());
 
         //check new available balance
         const userAvailableBalance1 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
         console.log(userAvailableBalance1);
+        console.log(await gameContract.methods.userBalance(accounts[0]).call());
 
         //send over to wallet
         await gameContract.methods.withdrawalUserBalance().send({
@@ -235,7 +232,7 @@ describe('CryptoMonkeysGame contract', () => {
         
         assert.equal(userAvailableBalance1, "0");
 
-    });
+    }).timeout(10000);
 
     it('Ownable assigned to deployer', async() => {
         const owner = await gameContract.methods.owner().call();

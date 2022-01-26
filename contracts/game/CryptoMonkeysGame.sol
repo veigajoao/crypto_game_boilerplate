@@ -169,11 +169,16 @@ contract CryptoMonkeysGame is Ownable{
         uint256 _availableFunds;
 
         if (_timeElapsed < withdrawalTime) {
-            _availableFunds = _userBalance * (_timeElapsed / withdrawalTime) * withdrawalLoss / 100;
+            //operations written in a way to avoid rounding to zero
+            //more elegant mathematically pure way of writting would be:
+            //_availableFunds = _userBalance * ( _timeElapsed / withdrawalTime) * (withdrawalLoss / 100);
+            _availableFunds = ( _userBalance * _timeElapsed * withdrawalLoss ) / (withdrawalTime * 100);
         } else {
             _availableFunds = _userBalance;
         }
         return _availableFunds;
+
+        // test getting the time elapsed to see if it is correct
 
     }
 
