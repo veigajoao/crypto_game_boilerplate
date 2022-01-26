@@ -48,14 +48,23 @@ describe('CryptoMonkeyChars contract', () => {
         assert.equal(balance0.comparedTo(BigNumber.sum(balance1, mintCost1)), 0);
         assert.equal(balance0nft, balance1nft - 1);
 
-        //mint 2 extra nfts for further tests
+        //mint 5 extra nfts for further tests
         await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
         await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
 
         await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
         await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
 
-    }).timeout(5000);
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
+        await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
+
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
+        await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
+
+        await bananaCoin.methods.approve(nftCreation.options.address, mintCost1).send({ from: accounts[0], gas: '1000000' });
+        await nftCreation.methods.mintNft(accounts[0], '1').send({ from: accounts[0], gas: '1000000' });
+
+    }).timeout(10000);
 
     it('mintNft() doesn`t work if user doesn`t pay ERC20 tokens', async() => {
         
@@ -268,7 +277,7 @@ describe('CryptoMonkeyChars contract', () => {
         await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[0], gas: '1000000' });
 
         //get id of one of accounts[0]'s nfts
-        const tokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 2).call();
+        const tokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 3).call();
 
         const nftStruct0 = await nftCreation.methods.tokensAttributes(tokenId).call();
         const balance0 = BigNumber(await bananaCoin.methods.balanceOf(accounts[0]).call());
@@ -296,7 +305,14 @@ describe('CryptoMonkeyChars contract', () => {
 
         assert.rejects(assertionFunc);
 
-    }).timeout(500000);
+        //upgrade other nft for further testing of game contract
+        
+        await bananaCoin.methods.approve(nftCreation.options.address, upgradeCost).send({ from: accounts[0], gas: '1000000' });
+        const tokenId1 = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 4).call();
+        await nftCreation.methods.upgradeNft(accounts[0], tokenId1).send({ from: accounts[0], gas: '1000000' });
+
+
+    }).timeout(10000);
 
     it('upgradeNft() doesn`t work if user doesn`t pay ERC20 tokens', async() => {
         

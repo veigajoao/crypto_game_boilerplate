@@ -100,7 +100,7 @@ describe('CryptoMonkeysGame contract', () => {
 
     it('baseMining() doesn`t allow use of other people`s chars', async() => {
 
-        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 0).call();
+        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 2).call();
 
         //run game once
         const assertionFunc = async() => {
@@ -112,7 +112,7 @@ describe('CryptoMonkeysGame contract', () => {
 
     it('level2Mining() works correctly', async() => {
  
-        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 2).call();
+        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 3).call();
         const nftAttr = await nftCreation.methods.tokensAttributes(nftTokenId).call();
         const nftType = nftAttr.monkeyType;
         const nftSalary = await gameContract.methods.upgradedSalary(nftType).call();
@@ -142,7 +142,7 @@ describe('CryptoMonkeysGame contract', () => {
 
     it('level2Mining() doesn`t allow use of other people`s chars', async() => {
 
-        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 0).call();
+        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 4).call();
 
         //run game once
         const assertionFunc = async() => {
@@ -250,6 +250,7 @@ describe('CryptoMonkeysGame contract', () => {
         //check available balance
         const contractWalletBalance0 = await bananaCoin.methods.balanceOf(accounts[2]).call();
         const userWalletBalance0 = await bananaCoin.methods.balanceOf(accounts[0]).call();
+        const userGameWithdrawableBalance = await gameContract.methods.getAvailableBalance(accounts[0]).call();
 
         //send over to wallet
         await gameContract.methods.withdrawalUserBalance().send({
@@ -259,8 +260,37 @@ describe('CryptoMonkeysGame contract', () => {
         //check wallet = accountBalance + balance0
         const contractWalletBalance1 = await bananaCoin.methods.balanceOf(accounts[2]).call();
         const userWalletBalance1 = await bananaCoin.methods.balanceOf(accounts[0]).call();
+
+        assert.equal( BigNumber(contractWalletBalance0).comparedTo(BigNumber.sum(contractWalletBalance1, userGameWithdrawableBalance)), 0);
+        assert.equal(BigNumber(userWalletBalance1).comparedTo(BigNumber.sum(userWalletBalance0, userGameWithdrawableBalance)), 0);
         
-    });
+        //play game with new nft once to assert working when early draw loss is applied
+        const nftTokenId = await nftCreation.methods.tokenOfOwnerByIndex(accounts[0], 5).call();
+        await gameContract.methods.baseMining(nftTokenId).send({ from: accounts[0], gas: "5000000" });
+
+
+        //check available balance
+        const contractWalletBalance2 = await bananaCoin.methods.balanceOf(accounts[2]).call();
+        const userWalletBalance2 = await bananaCoin.methods.balanceOf(accounts[0]).call();
+        const userGameWithdrawableBalance2 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+        const userFullBalance0 = await gameContract.methods.userBalance(accounts[0]).call();
+
+        //send over to wallet
+        await gameContract.methods.withdrawalUserBalance().send({
+            from: accounts[0], gas: "1000000"
+        });
+
+        //check wallet = accountBalance + balance0
+        const contractWalletBalance3 = await bananaCoin.methods.balanceOf(accounts[2]).call();
+        const userWalletBalance3 = await bananaCoin.methods.balanceOf(accounts[0]).call();
+        const userGameWithdrawableBalance3 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
+
+        assert.equal(BigNumber.sum(contractWalletBalance3, userWalletBalance3).comparedTo(BigNumber.sum(contractWalletBalance2, userWalletBalance2)), 0);
+        assert.equal(userGameWithdrawableBalance3, 0);
+        assert(userGameWithdrawableBalance2 <  userFullBalance0 * ((100 - withdrawalLoss + 1)/100) );
+        assert(userGameWithdrawableBalance2 >  userFullBalance0 * ((100 - withdrawalLoss)/100) );
+
+    }).timeout(10000);
 
     it('Ownable assigned to deployer', async() => {
         const owner = await gameContract.methods.owner().call();

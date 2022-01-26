@@ -172,8 +172,8 @@ contract CryptoMonkeysGame is Ownable{
             //operations written in a way to avoid rounding to zero
             //more elegant mathematically pure way of writting would be:
             //_boundFunds = _userBalance * ( _timeElapsed / withdrawalTime) * (withdrawalLoss / 100);
-            uint256 _freeFunds = ( _userBalance * (100 - withdrawalLoss) ) / 100;
-            uint256 _boundFunds = ( _userBalance * _timeElapsed * withdrawalLoss ) / (withdrawalTime * 100);
+            uint256 _freeFunds = uint256( ( _userBalance * (100 - withdrawalLoss) ) / 100 );
+            uint256 _boundFunds = uint256( ( _userBalance * _timeElapsed * withdrawalLoss ) / (withdrawalTime * 100) );
             _availableFunds = _freeFunds + _boundFunds;
         } else {
             _availableFunds = _userBalance;
@@ -186,6 +186,9 @@ contract CryptoMonkeysGame is Ownable{
 
     /**
      * @dev function to withdrawal current user balance
+     * this function will always withdrawal the full available balance
+     * and zero the available balance for the wallet in the contract
+     * it also resets the lastWithdrawal for the wallet for the current blocktime
      */
     function withdrawalUserBalance() public {
         uint256 _userAvailableBalance = _getUserWithdrawalTerms(msg.sender);
