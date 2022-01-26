@@ -7,16 +7,16 @@ This boilerplate contract code will serve the purpose of developing and testing 
 The game project involves:
 
 1. Creation of ERC20 token (game token) - Done
-2. Creation of ERC721 NFTs as game chars - Partially done (must implement randomness of char generation with different box prices and probabilities) (must implement randomness of char types and attributes)
-3. Game contract - Done (must define how awarding schema will work with team)
+2. Creation of ERC721 NFTs as game chars - Done
+3. Game contract - Done
  
  The contract will have public functions that take a nft, evaluate some require() needs - such as 
  minimum wait time between games, char attributes, etc. and output new tokens for the player
 
-4. Marketplace contract
-5. locked wallets contracts
+4. Marketplace contract - pending will not be prioritised
+5. locked wallets contracts - Done (will use standard "@openzeppelin/contracts/finance/VestingWallet.sol")
 
  Locked wallets will be used to hold reserved funds for devs, investors, vendors, etc.
 
-6. ICO contracts
+6. ICO contracts - pending (2 contracts - 1 buying early boxes - 2 buying early tokens)
  
