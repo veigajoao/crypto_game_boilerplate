@@ -37,8 +37,8 @@ contract CryptoMonkeysGame is Ownable{
         address _tokenAddress, 
         address _nftAddress,
         uint256 _waitPeriod,
-        uint256[14] memory _baseSalary,
-        uint256[14] memory _upgradedSalary,
+        uint256[11] memory _baseSalary,
+        uint256[11] memory _upgradedSalary,
         uint256 _withdrawalTime,
         uint256 _withdrawalLoss) {
             
@@ -61,9 +61,6 @@ contract CryptoMonkeysGame is Ownable{
             baseSalary[9] = _baseSalary[8];
             baseSalary[10] = _baseSalary[9];
             baseSalary[11] = _baseSalary[10];
-            baseSalary[12] = _baseSalary[11];
-            baseSalary[13] = _baseSalary[12];
-            baseSalary[14] = _baseSalary[13];
 
             upgradedSalary[1] = _upgradedSalary[0];
             upgradedSalary[2] = _upgradedSalary[1];
@@ -76,9 +73,6 @@ contract CryptoMonkeysGame is Ownable{
             upgradedSalary[9] = _upgradedSalary[8];
             upgradedSalary[10] = _upgradedSalary[9];
             upgradedSalary[11] = _upgradedSalary[10];
-            upgradedSalary[12] = _upgradedSalary[11];
-            upgradedSalary[13] = _upgradedSalary[12];
-            upgradedSalary[14] = _upgradedSalary[13];
 
             require(_withdrawalLoss > 1, "CryptoMonkeysGame: _withdrawalLoss must be > 1 (write in absolute, for 70%, write 70)");
             withdrawalTime = _withdrawalTime;
