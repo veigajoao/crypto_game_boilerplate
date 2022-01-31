@@ -46,7 +46,7 @@ let mintCost3 = web3.utils.toWei("400", 'ether');
 let upgradeCost = web3.utils.toWei('450', 'ether');
 let baseURI = 'https://gateway.pinata.cloud/ipfs/Qmb86L8mUphwJGzLPwXNTRiK1S4scBdj9cc2Sev3s8uLiB';
 
-let baseSalary0 = ["3.84", "3.965", "4.09", "4.215", "4.34", "4.76", "5.023", "5.286", "5.55", "6.66", "8.33", "10", "12.14", "14.28"];
+let baseSalary0 = ["3.84", "4.00", "4.16", "4.34", "4.76", "5.155", "5.55", "6.66", "9.2", "11.86", "14.28"];
 let baseSalary1 = baseSalary0.map((item) => {
     return BigNumber(item).dividedBy("3");
 });
