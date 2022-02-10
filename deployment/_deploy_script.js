@@ -25,7 +25,7 @@ const deploy = async (compiledData, accountInUse, constructorArguments) => {
       data: compiledData.bytecode,
       arguments: constructorArguments
     })
-    .send({ gas: '1000000', from: accountInUse });
+    .send({ gas: '10000000', from: accountInUse });
 
   console.log('Contract deployed to', result.options.address);
   provider.engine.stop();
