@@ -1,0 +1,11 @@
+0 = main account - manager of all - hold no funds
+1 = private sale
+2 = public sale
+3 = advisors
+4 = core team
+5 = marketing
+6 = DEX liquidity
+7 = Platform development
+8 = air drop
+9 = P2E
+10 = 

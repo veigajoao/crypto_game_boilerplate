@@ -29,6 +29,13 @@ const deploy = async (compiledData, accountInUse, constructorArguments) => {
 
   console.log('Contract deployed to', result.options.address);
   provider.engine.stop();
+
+  const contractInstance = new web3.eth.Contract(
+    compiledData.abi,
+    result.options.address
+  );
+
+  return contractInstance
 };
 
 export {deploy, web3};
