@@ -1,6 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
     mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
-    upgradedSalary, withdrawalTime, withdrawalLoss} from './_contractSetup.test.js';
+    upgradedSalary, withdrawalTime, withdrawalLoss, abiLock, bytecodeLock, timeTravelFull} from './_contractSetup.test.js';
 
 import BigNumber from 'bignumber.js';
 import assert from 'assert';
@@ -19,7 +19,7 @@ describe('CryptoMonkeysGame contract', () => {
         const waitPeriod = await gameContract.methods.waitPeriod().call();
         let baseSalaryMapping = [];
         let upgradedSalaryMapping = [];
-        for (let i=1; i<=14; i++) {
+        for (let i=1; i<=11; i++) {
             baseSalaryMapping.push( await gameContract.methods.baseSalary(i).call() );
             upgradedSalaryMapping.push( await gameContract.methods.upgradedSalary(i).call() );
         }
@@ -162,41 +162,6 @@ describe('CryptoMonkeysGame contract', () => {
 
     it('_getUserWithdrawalTerms() and getAvailableBalance() work correctly', async () => {
 
-        //functions to time machine test blockchain
-        const timeTravel = function (time) {
-            return new Promise((resolve, reject) => {
-              web3.currentProvider.sendAsync({
-                jsonrpc: "2.0",
-                method: "evm_increaseTime",
-                params: [time], // 86400 is num seconds in day
-                id: new Date().getTime()
-              }, (err, result) => {
-                if(err){
-                    console.log(err);
-                    return reject(err) 
-                }
-                return resolve(result)
-              });
-            })
-        }
-        
-        const mineBlock = function () {
-            return new Promise((resolve, reject) => {
-                web3.currentProvider.sendAsync({
-                jsonrpc: "2.0",
-                method: "evm_mine",
-                params: [],
-                id: new Date().getTime()
-                }, (err, result) => {
-                if(err){
-                    console.log(err);
-                    return reject(err) 
-                }
-                return resolve(result)
-                });
-            })
-        }
-
         const userAvailableBalance0 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
         const userFullBalance0 = await gameContract.methods.userBalance(accounts[0]).call();
         const balanceRatio0 = userAvailableBalance0/userFullBalance0;
@@ -204,8 +169,7 @@ describe('CryptoMonkeysGame contract', () => {
         //pass time
 
         const elapsedTime1 = withdrawalTime * 0.5;
-        await timeTravel(elapsedTime1);
-        await mineBlock();
+        await timeTravelFull(elapsedTime1);
 
         //check new available balance
         const userAvailableBalance1 = await gameContract.methods.getAvailableBalance(accounts[0]).call();
@@ -215,8 +179,7 @@ describe('CryptoMonkeysGame contract', () => {
         //pass time 2
 
         const elapsedTime2 = withdrawalTime * 0.5;
-        await timeTravel(elapsedTime2);
-        await mineBlock();
+        await timeTravelFull(elapsedTime2);
 
         //check new available balance
         const userAvailableBalance2 = await gameContract.methods.getAvailableBalance(accounts[0]).call();

@@ -1,6 +1,6 @@
 import {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
     mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
-    upgradedSalary, withdrawalTime, withdrawalLoss} from './_contractSetup.test.js';
+    upgradedSalary, withdrawalTime, withdrawalLoss, abiLock, bytecodeLock, timeTravelFull} from './_contractSetup.test.js';
 
 import assert from 'assert';
 
@@ -19,8 +19,8 @@ describe('BananaCoin contract', () => {
     it('name() is set correctly', async() => {
         const coinName = await bananaCoin.methods.name().call();
         const coinSymbol = await bananaCoin.methods.symbol().call();
-        assert.equal(coinName, "BananaCoin");
-        assert.equal(coinSymbol, "BANCOIN");
+        assert.equal(coinName, "BitBanana");
+        assert.equal(coinSymbol, "BNANA");
     });
 
     it('can transfer funds between accounts', async() => {

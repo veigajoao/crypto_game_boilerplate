@@ -33,6 +33,11 @@ const testingCompile = JSON.parse(fs.readFileSync(contractPathTesting, 'utf8'));
 const abiTesting = testingCompile.abi;
 const bytecodeTeting = testingCompile.bytecode;
 
+const contractPathLock = path.resolve(__dirname, '../bin/contracts/locked_wallets', 'TimeLockedWallet.json');
+const lockCompile = JSON.parse(fs.readFileSync(contractPathLock, 'utf8'));
+const abiLock = lockCompile.abi;
+const bytecodeLock = lockCompile.bytecode;
+
 //deploy contracts
 let accounts;
 let nftCreation;
@@ -77,7 +82,7 @@ before(async function () {
             data: bytecodeBanana,
         })
         .send({ from: accounts[0], gas: '1000000' });
-
+    
     //deploy ERC721 nft
     const deployCostNft = await new web3.eth.Contract(abi)
     .deploy({
@@ -120,7 +125,46 @@ before(async function () {
         .send({ from: accounts[0], gas: '5000000' });
 });
 
+//functions to time machine test blockchain
+const timeTravel = function (time) {
+    return new Promise((resolve, reject) => {
+      web3.currentProvider.sendAsync({
+        jsonrpc: "2.0",
+        method: "evm_increaseTime",
+        params: [time], // 86400 is num seconds in day
+        id: new Date().getTime()
+      }, (err, result) => {
+        if(err){
+            console.log(err);
+            return reject(err) 
+        }
+        return resolve(result)
+      });
+    })
+}
+
+const mineBlock = function () {
+    return new Promise((resolve, reject) => {
+        web3.currentProvider.sendAsync({
+        jsonrpc: "2.0",
+        method: "evm_mine",
+        params: [],
+        id: new Date().getTime()
+        }, (err, result) => {
+        if(err){
+            console.log(err);
+            return reject(err) 
+        }
+        return resolve(result)
+        });
+    })
+}
+
+const timeTravelFull = async function(time) {
+    await timeTravel(time);
+    await mineBlock();
+}
 
 export {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
      mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
-     upgradedSalary, withdrawalTime, withdrawalLoss}
+     upgradedSalary, withdrawalTime, withdrawalLoss, abiLock, bytecodeLock, timeTravelFull}
