@@ -253,6 +253,9 @@ describe('CryptoMonkeysGame contract', () => {
         assert(userGameWithdrawableBalance2 <  userFullBalance0 * ((100 - withdrawalLoss + 1)/100) );
         assert(userGameWithdrawableBalance2 >  userFullBalance0 * ((100 - withdrawalLoss)/100) );
 
+        // previous assertion sometimes randomly fails, needs to be investigated before deployment
+        assert(0 == 1);
+
     }).timeout(10000);
 
     it('Ownable assigned to deployer', async() => {

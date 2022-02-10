@@ -38,4 +38,4 @@ const deploy = async (compiledData, accountInUse, constructorArguments) => {
   return contractInstance
 };
 
-export {deploy, web3};
+export {deploy, web3, provider};
