@@ -23,15 +23,15 @@ const lockedPlatform = await deploy(compiledLock, accounts[0], [accounts[7], 286
 const lockedAirdrop = await deploy(compiledLock, accounts[0], [accounts[8], 6 * 30 * 24 * 60 * 60]);
 
 //send funds to each account (or respective locked wallet)
-contractInstance.methods.transfer(accounts[1], web3.utils.toWei("6000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(accounts[2], web3.utils.toWei("8000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(lockedAdvisors.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(lockedCoreteam.options.address, web3.utils.toWei("12000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(lockedMarketing.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(accounts[6], web3.utils.toWei("7000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(lockedPlatform.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(lockedAirdrop.options.address, web3.utils.toWei("1000000", "ether")).send({ gas: '1000000', from: accounts[0] });
-contractInstance.methods.transfer(accounts[9], web3.utils.toWei("51000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(accounts[1], web3.utils.toWei("6000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(accounts[2], web3.utils.toWei("8000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(lockedAdvisors.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(lockedCoreteam.options.address, web3.utils.toWei("12000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(lockedMarketing.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(accounts[6], web3.utils.toWei("7000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(lockedPlatform.options.address, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(lockedAirdrop.options.address, web3.utils.toWei("1000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(accounts[9], web3.utils.toWei("51000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 
 //print contract locations
 console.log(`ERC-20 at ${contractInstance.options.address}`);
