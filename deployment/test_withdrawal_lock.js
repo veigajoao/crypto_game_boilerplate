@@ -37,8 +37,8 @@ const contractAirdrop = new web3.eth.Contract(
     process.env.LOCKAIRDROPADDRESS
 );
 
-await contractAdvisors.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[3] });
-await contractTeam.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[4] });
-await contractMkt.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[5] });
-await contractPlatform.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[7] });
-await contractAirdrop.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[8] });
+await contractAdvisors.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
+await contractTeam.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
+await contractMkt.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
+await contractPlatform.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
+await contractAirdrop.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
