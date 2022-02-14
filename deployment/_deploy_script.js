@@ -38,9 +38,9 @@ const deploy = async (compiledData, accountInUse, constructorArguments) => {
     );
 
     return contractInstance
-    } catch (error) {
-      console.log(error);
-    }
+  } catch (error) {
+    console.log(error);
+  }
   
 };
 

@@ -42,3 +42,5 @@ await contractTeam.methods.release(process.env.ERC20ADDRESS).send({ gas: '100000
 await contractMkt.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
 await contractPlatform.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
 await contractAirdrop.methods.release(process.env.ERC20ADDRESS).send({ gas: '1000000', from: accounts[0] });
+
+provider.engine.stop();
