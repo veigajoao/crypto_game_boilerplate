@@ -32,17 +32,17 @@ The JSON-RPC endpoint for the deployment network, private keys and current live 
 
 Contracts will be deployed to Binance Smart Chain Mainnet
 
-ERC20: 
-ERC721: 
-Game contract:
-Marketplace contract:
-Staking contract:
+ERC20:  
+ERC721:  
+Game contract:  
+Marketplace contract:  
+Staking contract:  
 
-Locked wallet advisors:
-Locked wallet Core Team:
-Locked wallet Marketing:
-Locked wallet Platform development:
-Locked wallet Airdrop:
+Locked wallet advisors:  
+Locked wallet Core Team:  
+Locked wallet Marketing:  
+Locked wallet Platform development:  
+Locked wallet Airdrop:  
 
-Presale contract:
-Public sale contract:
+Presale contract:  
+Public sale contract:  
