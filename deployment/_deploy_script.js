@@ -14,28 +14,34 @@ const provider = new HDWalletProvider(
 const web3 = new Web3(provider);
 
 const deploy = async (compiledData, accountInUse, constructorArguments) => {
-  const accounts = await web3.eth.getAccounts();
+  
+  try {
+    const accounts = await web3.eth.getAccounts();
 
-  console.log('Attempting to deploy from account', accountInUse);
+    console.log('Attempting to deploy from account', accountInUse);
 
-  const result = await new web3.eth.Contract(
-    compiledData.abi
-  )
-    .deploy({ 
-      data: compiledData.bytecode,
-      arguments: constructorArguments
-    })
-    .send({ gas: '10000000', from: accountInUse });
+    const result = await new web3.eth.Contract(
+      compiledData.abi
+    )
+      .deploy({ 
+        data: compiledData.bytecode,
+        arguments: constructorArguments
+      })
+      .send({ gas: '10000000', from: accountInUse });
 
-  console.log('Contract deployed to', result.options.address);
-  provider.engine.stop();
+    console.log('Contract deployed to', result.options.address);
+    provider.engine.stop();
 
-  const contractInstance = new web3.eth.Contract(
-    compiledData.abi,
-    result.options.address
-  );
+    const contractInstance = new web3.eth.Contract(
+      compiledData.abi,
+      result.options.address
+    );
 
-  return contractInstance
+    return contractInstance
+    } catch (error) {
+      console.log(error);
+    }
+  
 };
 
 export {deploy, web3, provider};
