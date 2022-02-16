@@ -17,7 +17,7 @@ const lockedCoreteam = await deploy(compiledLock, accounts[0], [accounts[4], 12 
 const lockedMarketing = await deploy(compiledLock, accounts[0], [accounts[5], 200 * 24 * 60 * 60]);
 const lockedPlatform = await deploy(compiledLock, accounts[0], [accounts[7], 286 * 24 * 60 * 60]);
 const lockedAirdrop = await deploy(compiledLock, accounts[0], [accounts[8], 6 * 30 * 24 * 60 * 60]);
-const lockedEarlyinvestors = await deploy(compiledLock, accounts[0], [accounts[10], 6 * 30 * 24 * 60 * 60]);
+const lockedEarlyinvestors = await deploy(compiledLock, accounts[0], [accounts[10], 4 * 30 * 24 * 60 * 60]);
 
 console.log(`lockedAdvisors at ${lockedAdvisors.options.address}`);
 console.log(`lockedCoreteam at ${lockedCoreteam.options.address}`);
