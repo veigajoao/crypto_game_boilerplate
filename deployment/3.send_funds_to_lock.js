@@ -16,7 +16,7 @@ const contractInstance = new web3.eth.Contract(
 );
 
 //send funds to each account (or respective locked wallet)
-await contractInstance.methods.transfer(accounts[1], web3.utils.toWei("6000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(accounts[1], web3.utils.toWei("3000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 await contractInstance.methods.transfer(accounts[2], web3.utils.toWei("8000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 await contractInstance.methods.transfer(process.env.LOCKADVISORSADDRESS, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 await contractInstance.methods.transfer(process.env.LOCKCORETEAMADDRESS, web3.utils.toWei("12000000", "ether")).send({ gas: '1000000', from: accounts[0] });
@@ -25,5 +25,6 @@ await contractInstance.methods.transfer(accounts[6], web3.utils.toWei("7000000",
 await contractInstance.methods.transfer(process.env.LOCKPLATFORMADDRESS, web3.utils.toWei("5000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 await contractInstance.methods.transfer(process.env.LOCKAIRDROPADDRESS, web3.utils.toWei("1000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 await contractInstance.methods.transfer(accounts[9], web3.utils.toWei("51000000", "ether")).send({ gas: '1000000', from: accounts[0] });
+await contractInstance.methods.transfer(process.env.LOCKEARLYINVESTORS, web3.utils.toWei("3000000", "ether")).send({ gas: '1000000', from: accounts[0] });
 
 provider.engine.stop();

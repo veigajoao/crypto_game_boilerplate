@@ -8,4 +8,4 @@
 7 = Platform development
 8 = air drop
 9 = P2E
-10 = 
+10 = early investors

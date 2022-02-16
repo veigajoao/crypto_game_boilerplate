@@ -1,15 +1,24 @@
 import dotenv from 'dotenv';
+import prompt from 'prompt-sync';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+dotenv.config({ path: path.resolve(__dirname, '../prod_env') })
 
 import HDWalletProvider from '@truffle/hdwallet-provider';
 import Web3 from 'web3';
 
+const password = prompt()('password');
+
 const provider = new HDWalletProvider(
-  process.env.MNEMONIC,
-  process.env.RPC_ENDPOINT
+  {
+  mnemonic: {
+    phrase: process.env.MNEMONIC,
+    password: password,
+  },
+  providerOrUrl: process.env.RPC_ENDPOINT,
+  numberOfAddresses: 100,
+  }
 );
 const web3 = new Web3(provider);
 
