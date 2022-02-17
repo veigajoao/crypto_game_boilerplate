@@ -12,12 +12,12 @@ const password = prompt()('password');
 
 const provider = new HDWalletProvider(
   {
-  mnemonic: {
-    phrase: process.env.MNEMONIC,
-    password: password,
-  },
-  providerOrUrl: process.env.RPC_ENDPOINT,
-  numberOfAddresses: 100,
+    mnemonic: {
+      phrase: process.env.MNEMONIC,
+      password: password,
+    },
+    providerOrUrl: process.env.RPC_ENDPOINT,
+    numberOfAddresses: 100,
   }
 );
 const web3 = new Web3(provider);

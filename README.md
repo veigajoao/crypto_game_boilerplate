@@ -32,7 +32,7 @@ The JSON-RPC endpoint for the deployment network, private keys and current live 
 
 Contracts will be deployed to Binance Smart Chain Mainnet
 
-ERC20:  
+ERC20:  0xf9b27685bfaAF96AaedffD45DA69BF7F5d0ea07D
 ERC721:  
 Game contract:  
 Marketplace contract:  
