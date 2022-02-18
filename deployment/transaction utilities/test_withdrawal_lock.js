@@ -1,4 +1,4 @@
-import {deploy, web3, provider} from './_deploy_script.js';
+import {deploy, web3, provider} from '../_deploy_script.js';
 
 const accounts = await web3.eth.getAccounts();
 

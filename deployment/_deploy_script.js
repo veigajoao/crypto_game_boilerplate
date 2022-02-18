@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(__dirname, '../prod_env') })
 import HDWalletProvider from '@truffle/hdwallet-provider';
 import Web3 from 'web3';
 
-const password = prompt()('password');
+const password = prompt()('password: ');
 
 const provider = new HDWalletProvider(
   {
