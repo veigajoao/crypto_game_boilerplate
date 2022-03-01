@@ -18,6 +18,6 @@ const contractInstance = new web3.eth.Contract(
 import prompt from 'prompt-sync';
 const investor_account = prompt()('investor wallet address: ');
 
-await contractInstance.methods.transfer(investor_account, web3.utils.toWei("2330", "ether")).send({ gas: '1000000', from: accounts[10] });
+await contractInstance.methods.transfer(investor_account, web3.utils.toWei("3080", "ether")).send({ gas: '1000000', from: accounts[10] });
 
 provider.engine.stop();

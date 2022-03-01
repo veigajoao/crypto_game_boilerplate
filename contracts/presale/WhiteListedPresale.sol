@@ -16,6 +16,10 @@ contract WhiteListedPresale is Ownable {
     //price to purchase each token (how many busd for 1 token, v.g.)
     uint256 public tokenPrice;
 
+    uint256 public tokenOffer1;
+    uint256 public tokenOffer2;
+    uint256 public tokenOffer3;
+
     IERC20 private saleTokenContract;
     IERC20 private priceTokenContract; 
 
@@ -26,6 +30,9 @@ contract WhiteListedPresale is Ownable {
         address _saleTokenAddress, 
         address _priceTokenAddress,
         uint256 _tokenPrice,
+        uint256 _tokenOffer1,
+        uint256 _tokenOffer2,
+        uint256 _tokenOffer3,
         address[] memory _whiteListAddresses,
         uint256[] memory _whiteListBuyLimits) {
             
@@ -39,6 +46,9 @@ contract WhiteListedPresale is Ownable {
             priceTokenContract = IERC20(priceTokenAddress);
 
             tokenPrice = _tokenPrice;
+            tokenOffer1 = _tokenOffer1;
+            tokenOffer2 = _tokenOffer2;
+            tokenOffer3 = _tokenOffer3;
 
             for(uint256 i = 0; i <= _whiteListAddresses.length; i++) {
                 maxBuyMapping[ _whiteListAddresses[i] ] = _whiteListBuyLimits[i];
@@ -61,9 +71,11 @@ contract WhiteListedPresale is Ownable {
      * @param tokenQuantity quantity of tokens that user wishes to purchase
      */
     function buyTokens(uint256 tokenQuantity) public {
-        require(getCurrentAllowance(msg.sender) >= tokenQuantity);
+        require(getCurrentAllowance(msg.sender) >= tokenQuantity, "WhiteListedPresale: no token allowance");
+        require(tokenQuantity == tokenOffer1 || tokenQuantity == tokenOffer2 || tokenQuantity == tokenOffer3, "WhiteListedPresale: token quantity not allowed");
+        maxBuyMapping[msg.sender] -= tokenQuantity;
         priceTokenContract.safeTransferFrom(msg.sender, ERC20TokenSourceWallet, tokenQuantity * tokenPrice);
-        saleTokenContract.safeTransferFrom(ERC20TokenSourceWallet, msg.sender, tokenPrice);
+        saleTokenContract.safeTransferFrom(ERC20TokenSourceWallet, msg.sender, tokenQuantity);
     }
 
 }
