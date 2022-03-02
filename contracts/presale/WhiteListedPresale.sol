@@ -25,6 +25,9 @@ contract WhiteListedPresale is Ownable {
 
     mapping (address => uint256) public maxBuyMapping;
 
+    //only whitelistedbuying
+    bool public whitelistOnly;
+
     constructor(
         address _ERC20TokenSourceWallet,
         address _saleTokenAddress, 
@@ -34,9 +37,11 @@ contract WhiteListedPresale is Ownable {
         uint256 _tokenOffer2,
         uint256 _tokenOffer3,
         address[] memory _whiteListAddresses,
-        uint256[] memory _whiteListBuyLimits) {
+        uint256[] memory _whiteListBuyLimits,
+        bool _whitelistOnly
+        ) {
             
-            require(_whiteListAddresses.length == _whiteListBuyLimits.length, "WhiteListedPresale: _whiteListAddresses and _whiteListBuyLimits provided have different lengths, must be same");
+            // require(_whiteListAddresses.length == _whiteListBuyLimits.length, "WhiteListedPresale: _whiteListAddresses and _whiteListBuyLimits provided have different lengths, must be same");
             
             ERC20TokenSourceWallet = _ERC20TokenSourceWallet;
             saleTokenAddress = _saleTokenAddress;
@@ -50,10 +55,11 @@ contract WhiteListedPresale is Ownable {
             tokenOffer2 = _tokenOffer2;
             tokenOffer3 = _tokenOffer3;
 
-            for(uint256 i = 0; i <= _whiteListAddresses.length; i++) {
+            for(uint256 i = 0; i < _whiteListAddresses.length; i++) {
                 maxBuyMapping[ _whiteListAddresses[i] ] = _whiteListBuyLimits[i];
             }
             
+            whitelistOnly = _whitelistOnly;
     }
 
     /**
@@ -65,17 +71,33 @@ contract WhiteListedPresale is Ownable {
         return maxBuyMapping[_address];
     }
 
+
+    modifier whiteListed(uint256 tokenQuantity) {
+        if (whitelistOnly) {
+            require(getCurrentAllowance(msg.sender) >= tokenQuantity, "WhiteListedPresale: no token allowance");
+            require(tokenQuantity == tokenOffer1 || tokenQuantity == tokenOffer2 || tokenQuantity == tokenOffer3, "WhiteListedPresale: token quantity not allowed");
+            maxBuyMapping[msg.sender] -= tokenQuantity;
+        }
+        _;
+    }
+
     /**
      * @dev function for user to buy tokens paying with determined ERC20 token
      *
      * @param tokenQuantity quantity of tokens that user wishes to purchase
      */
-    function buyTokens(uint256 tokenQuantity) public {
-        require(getCurrentAllowance(msg.sender) >= tokenQuantity, "WhiteListedPresale: no token allowance");
-        require(tokenQuantity == tokenOffer1 || tokenQuantity == tokenOffer2 || tokenQuantity == tokenOffer3, "WhiteListedPresale: token quantity not allowed");
-        maxBuyMapping[msg.sender] -= tokenQuantity;
-        priceTokenContract.safeTransferFrom(msg.sender, ERC20TokenSourceWallet, tokenQuantity * tokenPrice);
+    function buyTokens(uint256 tokenQuantity) public whiteListed(tokenQuantity) {
+        priceTokenContract.safeTransferFrom(msg.sender, ERC20TokenSourceWallet, (tokenQuantity / 10**18 ) * tokenPrice);
         saleTokenContract.safeTransferFrom(ERC20TokenSourceWallet, msg.sender, tokenQuantity);
+    }
+
+    /**
+     * @dev function for owner to change locked status of contract
+     *
+     * @param _whitelistOnly boolean for undoing the activating/deactivating lock in whiteListed modifier
+     */
+    function changeWhitelistRequirement(bool _whitelistOnly) public onlyOwner {
+        whitelistOnly = _whitelistOnly;
     }
 
 }

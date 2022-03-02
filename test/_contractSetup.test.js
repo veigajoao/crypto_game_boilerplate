@@ -4,7 +4,8 @@ import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
 BigNumber.config({ DECIMAL_PLACES: 3 })
 
-const options = { gasLimit: 10000000 };
+const options = { gasLimit: 10000000,
+                };
 const web3 = new Web3(ganache.provider(options));
 
 import path from 'path';
@@ -38,12 +39,20 @@ const lockCompile = JSON.parse(fs.readFileSync(contractPathLock, 'utf8'));
 const abiLock = lockCompile.abi;
 const bytecodeLock = lockCompile.bytecode;
 
+const contractPathWhitelist = path.resolve(__dirname, '../bin/contracts/presale', 'WhiteListedPresale.json');
+const whitelistCompile = JSON.parse(fs.readFileSync(contractPathWhitelist, 'utf8'));
+const abiWhitelist = whitelistCompile.abi;
+const bytecodeWhitelist = whitelistCompile.bytecode;
+
+
 //deploy contracts
 let accounts;
 let nftCreation;
 let bananaCoin;
 let gameContract;
 let testContract;
+let otherToken;
+let whitelistContract;
 
 let mintCost1 = web3.utils.toWei("100", 'ether');
 let mintCost2 = web3.utils.toWei("250", 'ether');
@@ -117,6 +126,27 @@ before(async function () {
         })
         .send({ from: accounts[0], gas: '5000000' });
 
+    //deploy whitelist contract
+
+        //deploy intermediary second token
+    otherToken = await new web3.eth.Contract(abiBanana)
+        .deploy({
+            data: bytecodeBanana,
+        })
+        .send({ from: accounts[8], gas: '1000000' });
+
+    whitelistContract = await new web3.eth.Contract(abiWhitelist)
+        .deploy({
+            data: bytecodeWhitelist,
+            arguments: [accounts[0], bananaCoin.options.address, otherToken.options.address, web3.utils.toWei('0.065', 'ether'),
+                        web3.utils.toWei('50', 'ether'), web3.utils.toWei('100', 'ether'), web3.utils.toWei('200', 'ether'),
+                         [accounts[8], accounts[9]],
+                         [web3.utils.toWei('100', 'ether'),  web3.utils.toWei('50', 'ether')], 
+                         true
+                        ]
+        })
+        .send({ from: accounts[0], gas: '5000000' });
+
     //deploy auxiliary testing contract
     testContract = await new web3.eth.Contract(abiTesting)
         .deploy({
@@ -167,4 +197,5 @@ const timeTravelFull = async function(time) {
 
 export {web3, accounts, nftCreation, bananaCoin, gameContract, testContract, mintCost1,
      mintCost2, mintCost3, upgradeCost, baseURI, baseSalary, upgradedSalaryMultiplier, 
-     upgradedSalary, withdrawalTime, withdrawalLoss, abiLock, bytecodeLock, timeTravelFull}
+     upgradedSalary, withdrawalTime, withdrawalLoss, abiLock, bytecodeLock, timeTravelFull, 
+     otherToken, whitelistContract}
