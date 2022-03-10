@@ -76,7 +76,7 @@ contract WhiteListedPresale is Ownable {
         if (whitelistOnly) {
             require(getCurrentAllowance(msg.sender) >= tokenQuantity, "WhiteListedPresale: no token allowance");
             require(tokenQuantity == tokenOffer1 || tokenQuantity == tokenOffer2 || tokenQuantity == tokenOffer3, "WhiteListedPresale: token quantity not allowed");
-            maxBuyMapping[msg.sender] -= tokenQuantity;
+            maxBuyMapping[msg.sender] = 0;
         }
         _;
     }
