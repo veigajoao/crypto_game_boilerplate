@@ -44,5 +44,5 @@ Locked wallet Marketing: 0x743126FCfeCfea541F65C0f464e9B146a44B8210
 Locked wallet Platform development: 0x6042e4B7f4C9D3696f1CfD3946a70CD8dBdbA9Eb  
 Locked wallet Airdrop: 0x82690b21Fa598531EC46a493e46C0daBdFa3D435  
 
-Presale contract:  
+Presale contract:  0x8E0ED58bAf27CA6f8FE61317C7cf53BB37e5b00f  
 Public sale contract:  
