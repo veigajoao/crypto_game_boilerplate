@@ -18,6 +18,8 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         uint8 monkeyType;
         uint8 charLevel;
         uint256 mintTime;
+        bool openedBox;
+        uint16 boxType;
     }
     mapping (uint256 => CharAttributes) public tokensAttributes;
 
@@ -165,7 +167,9 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         tokensAttributes[tokenId] = CharAttributes({
             monkeyType: _monkeyType,
             charLevel: 1,
-            mintTime: block.timestamp
+            mintTime: block.timestamp,
+            openedBox: false,
+            boxType: _probabilityMapping
         });
         _setTokenURI(tokenId, string(abi.encodePacked("/", Strings.toString(_monkeyType), ".png")));
 
@@ -182,7 +186,7 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
         require(_probabilityMapping == 1 || _probabilityMapping == 2 || _probabilityMapping == 3, "CryptoMonkeyChars: mintNft: _probabilityMapping must belong to uint16[1, 2, 3]");
 
         ERC20Burnable tokenContract = ERC20Burnable(tokenAddress);
-        tokenContract.burnFrom(recipient, mintCost[_probabilityMapping]);
+        tokenContract.burnFrom(msg.sender, mintCost[_probabilityMapping]);
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
@@ -210,6 +214,12 @@ contract CryptoMonkeyChars is ERC721Enumerable, ERC721URIStorage, Ownable {
 
         tokensAttributes[nftIndex].charLevel = 2;
         
+    }
+
+    function getNftData(uint256 nftIndex) public view returns (uint8, uint8, uint256, bool, uint16) {
+        return (tokensAttributes[nftIndex].monkeyType, tokensAttributes[nftIndex].charLevel, 
+                tokensAttributes[nftIndex].mintTime, tokensAttributes[nftIndex].openedBox, 
+                tokensAttributes[nftIndex].boxType);
     }
 
     /**

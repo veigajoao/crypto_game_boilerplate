@@ -15,7 +15,7 @@ const contract = new web3.eth.Contract(
 
 const accounts = await web3.eth.getAccounts();
 
-await contract.methods.changeWhitelistRequirement(false).send({ gas: '1000000', from: accounts[0] });
+await contract.methods.changeWhitelistRequirement(true).send({ gas: '1000000', from: accounts[0] });
 
 //print contract locations
 console.log(`Done`);
